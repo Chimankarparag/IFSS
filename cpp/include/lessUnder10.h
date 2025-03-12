@@ -9,22 +9,22 @@ class Section10Exemptions {
 public:
     Section10Exemptions(const Salary* salary, const EmployeeDetails* employeeDetails);
     void inputDetails();
-    double calculateHRA();
-    double calculateLTA();
-    double calculateChildrenEducationAllowance();
-    double calculateHostelAllowance();
-    double calculateTransportAllowance();
-    double calculateSpecialAllowance();
-    double calculateGratuity();
-    double calculateCommutedPension();
-    double calculateLeaveEncashment();
-    double calculateVRSCompensation();
+    double calculateHRA()const;
+    double calculateLTA()const;
+    double calculateChildrenEducationAllowance()const;
+    double calculateHostelAllowance()const;
+    double calculateTransportAllowance()const;
+    double calculateSpecialAllowance()const;
+    double calculateGratuity()const;
+    double calculateCommutedPension()const;
+    double calculateLeaveEncashment()const;
+    double calculateVRSCompensation()const;
+    double calculateTotalExemptions() const ; // New method to calculate total exemptions
     void displayExemptions();
 
 private:
     const Salary* salary;
     const EmployeeDetails* employeeDetails;
-    double hraReceived;
     double rentPaid;
     bool metroCity;
     double ltaAmount;

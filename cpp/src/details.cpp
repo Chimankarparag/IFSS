@@ -1,10 +1,11 @@
 #include "details.h"
+#include <iostream>
 
 using namespace std;
 
 // Constructor initializes values
 EmployeeDetails::EmployeeDetails()
-    : governmentEmployee(false), age(0), withGratuity(false), unusedLeavesInMonths(0), retiring(false) {}
+    : governmentEmployee(false), age(0), withGratuity(false), unusedLeavesInMonths(0), retiring(false), oldTaxRegime(false) {}
 
 // Function to take user input
 void EmployeeDetails::inputDetails() {
@@ -26,6 +27,10 @@ void EmployeeDetails::inputDetails() {
     cout << "Is the employee retiring? (y/n): ";
     cin >> choice;
     retiring = (choice == 'y' || choice == 'Y');
+
+    cout << "Is the employee under the old tax regime? (y/n): ";
+    cin >> choice;
+    oldTaxRegime = (choice == 'y' || choice == 'Y');
 }
 
 // Function to check if the employee is a government employee
@@ -51,4 +56,9 @@ int EmployeeDetails::getUnusedLeavesInMonths() const {
 // Function to check if the employee is retiring
 bool EmployeeDetails::isRetiring() const {
     return retiring;
+}
+
+// Function to check if the employee is under the old tax regime
+bool EmployeeDetails::isOldTaxRegime() const {
+    return oldTaxRegime;
 }

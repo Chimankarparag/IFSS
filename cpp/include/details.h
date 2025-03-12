@@ -12,13 +12,15 @@ public:
     bool isWithGratuity() const;
     int getUnusedLeavesInMonths() const;
     bool isRetiring() const;
+    bool isOldTaxRegime() const;
 
 private:
     bool governmentEmployee;
     int age;
     bool withGratuity;
-    int unusedLeavesInMonths; // New variable for unused leaves in months
-    bool retiring; // New variable for retirement status
+    int unusedLeavesInMonths;
+    bool retiring;
+    bool oldTaxRegime;
 };
 
 #endif // DETAILS_H

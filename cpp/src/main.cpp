@@ -6,6 +6,10 @@
 #include "details.h"
 #include "lessUnder89A.h"
 #include "grossSalary.h"
+#include "netIncome.h"
+#include "deductionUnderSection16.h"
+#include "incomeUnderHeadSalaries.h"
+#include "incomeUnderHouseProperty.h"
 
 int main() {
     Salary salary;
@@ -30,10 +34,24 @@ int main() {
 
     exemptions.inputDetails();
     exemptions.displayExemptions();
-    
+
     LessUnder89A lessUnder89A(&foreignRetirement);
     lessUnder89A.inputWithdrawal();
     lessUnder89A.displayLess();
+
+    NetIncome netIncome(&grossSalary, &exemptions, &lessUnder89A, &employeeDetails);
+    netIncome.displayNetIncome();
+
+    DeductionUnderSection16 deductions(&netIncome, &employeeDetails, &salary);
+    deductions.displayNetIncomeAfterDeductions();
+
+    IncomeUnderHeadSalaries incomeUnderHeadSalaries(&netIncome, &deductions);
+    incomeUnderHeadSalaries.displayIncomeUnderHeadSalaries();
+
+    IncomeUnderHouseProperty incomeUnderHouseProperty;
+    incomeUnderHouseProperty.inputHousePropertyDetails();
+    incomeUnderHouseProperty.displayIncomeUnderHouseProperty();
+
 
 
     return 0;

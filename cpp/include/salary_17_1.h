@@ -9,11 +9,14 @@ public:
     void inputSalaryDetails();
     double getBasicSalary() const;
     double getPension() const;
-    double getDearnessAllowance() const;
-    double calculateSalary17_1() const;
-    void displaySalaryBreakup() const;
     double getGratuity() const;
     double getLeaveEncashment() const;
+    double getDearnessAllowance() const;
+    double getHRA() const;
+    double getEntertainmentAllowance() const;
+    double getProfessionalTax() const;
+    double calculateSalary17_1() const;
+    void displaySalaryBreakup() const;
 
 private:
     double basicSalary;
@@ -25,6 +28,9 @@ private:
     double gratuity;
     double pension;
     double otherComponents;
+    double hra;
+    double entertainmentAllowance;
+    double professionalTax;
 };
 
 #endif // SALARY_17_1_H
