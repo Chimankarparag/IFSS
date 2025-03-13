@@ -1,0 +1,29 @@
+{
+  "name": "ifss",
+  "version": "1.0.0",
+  "description": "This repository is meant for Software Project of 23CS10049 and 23CS30056",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chimankarparag/IFSS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Chimankarparag/IFSS/issues"
+  },
+  "homepage": "https://github.com/Chimankarparag/IFSS#readme",
+  "dependencies": {
+    "@faker-js/faker": "^9.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.14.0",
+    "mongoose": "^8.11.0"
+  }
+}
