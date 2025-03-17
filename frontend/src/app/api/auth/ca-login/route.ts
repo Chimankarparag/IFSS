@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import User from "@/models/userModel";
+import CA from "@/models/caModel";
 import { connect } from "@/dbconfig/dbConfig";
 import { generateToken } from "@/utils/authUtils";
 
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     await connect();
     
-    const { panNumber, password, captcha, captchaSessionId } = await request.json();
+    const { caId, password, captcha, captchaSessionId } = await request.json();
     
     // Validate captcha
     const captchaCookie = request.cookies.get(`captcha_${captchaSessionId}`);
@@ -22,22 +22,24 @@ export async function POST(request: NextRequest) {
     if (captcha !== captchaCookie.value) {
       return NextResponse.json({ message: "Invalid captcha" }, { status: 400 });
     }
-    
+
     // Find user by PAN number
-    const user = await User.findOne({ pan_number: panNumber });
+    const ca = await CA.findOne({ caid: caId });
+
+    console.log(ca, caId);
     
-    if (!user) {
+    if (!ca) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
     
     // Verify password
-    const isPasswordValid = user.password ? await bcrypt.compare(password, user.password) : false;
+    const isPasswordValid = ca.password ? await bcrypt.compare(password, ca.password) : false;
     
     if (!isPasswordValid) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = generateToken(user); //Generate token
+    const CAtoken = generateToken(ca); //Generate token
 
     // ✅ Store token in HTTP-only cookie
     const response = NextResponse.json({
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
       message: "Login successful"
     });
 
-    response.cookies.set("token", token, {
+    response.cookies.set("CAtoken", CAtoken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Secure only in production
       path: "/",

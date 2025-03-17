@@ -19,14 +19,13 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { RefreshCw as Reload } from "lucide-react";
 
-// Define the schema for login validation
-const loginSchema = z.object({
-    panNumber: z
+// Define the schema for CA login validation
+const caLoginSchema = z.object({
+    caId: z
         .string()
-        .min(10, { message: "PAN number must be 10 characters" })
-        .max(10, { message: "PAN number must be 10 characters" })
-        .regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, {
-            message: "Invalid PAN format. Example: ABCDE1234F"
+        .min(6, { message: "CA ID must be at least 6 characters" })
+        .regex(/^[A-Z0-9]+$/, {
+            message: "CA ID must contain only uppercase letters and numbers"
         }),
     password: z
         .string()
@@ -36,7 +35,7 @@ const loginSchema = z.object({
         .min(1, { message: "Please enter the captcha code" }),
 });
 
-export default function LoginPage() {
+export default function CALoginPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -45,16 +44,16 @@ export default function LoginPage() {
     const [isCaptchaLoading, setIsCaptchaLoading] = useState(true);
 
     // Initialize form with zod schema resolver
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<z.infer<typeof caLoginSchema>>({
+        resolver: zodResolver(caLoginSchema),
         defaultValues: {
-            panNumber: "",
+            caId: "",
             password: "",
             captcha: "",
         },
     });
 
-    // Replace the regenerateCaptcha function
+    // Captcha generation function
     const regenerateCaptcha = async () => {
         try {
             setIsCaptchaLoading(true);
@@ -70,7 +69,6 @@ export default function LoginPage() {
             form.setValue("captcha", "");
         } catch (error) {
             console.error('Captcha generation error:', error);
-            // Fallback to a simple message if API fails
             setCaptchaImage('');
         } finally {
             setIsCaptchaLoading(false);
@@ -82,19 +80,19 @@ export default function LoginPage() {
         regenerateCaptcha();
     }, []);
 
-    // Modified form submission
-    const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    // Form submission handler
+    const onSubmit = async (data: z.infer<typeof caLoginSchema>) => {
         try {
             setIsLoading(true);
             setError('');
 
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/api/auth/ca-login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    panNumber: data.panNumber,
+                    caId: data.caId,
                     password: data.password,
                     captcha: data.captcha,
                     captchaSessionId
@@ -108,7 +106,7 @@ export default function LoginPage() {
             }
 
             toast.success('Login successful!');
-            router.push('/profile');
+            router.push('/');
         } catch (error: any) {
             setError(error.message || 'Invalid credentials or captcha');
             regenerateCaptcha();
@@ -120,7 +118,7 @@ export default function LoginPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#0F0F0F]">
             <div className="w-full max-w-md p-6 bg-[#1C1C1C] text-[#EAEAEA] border-2 border-[#333333] rounded-lg shadow-lg">
-                <h1 className="text-2xl font-bold mb-6 text-center">Account Login</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center">CA Portal Login</h1>
 
                 {isLoading && (
                     <div className="bg-blue-900/30 border border-blue-800 text-blue-200 p-3 rounded-md mb-4">
@@ -138,21 +136,21 @@ export default function LoginPage() {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
                             control={form.control}
-                            name="panNumber"
+                            name="caId"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        PAN Number<span className="text-red-500">*</span>
+                                        CA ID<span className="text-red-500">*</span>
                                     </FormLabel>
                                     <FormControl>
                                         <Input
                                             {...field}
-                                            placeholder="ABCDE1234F"
+                                            placeholder="CA123456"
                                             className="bg-[#2A2A2A] border-[#333333] text-[#EAEAEA]"
                                             autoComplete="off"
                                         />
                                     </FormControl>
-                                    <FormDescription>Enter your 10-character PAN number</FormDescription>
+                                    <FormDescription>Enter your Chartered Accountant ID</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -232,7 +230,7 @@ export default function LoginPage() {
 
                         <div className="flex justify-end">
                             <Link
-                                href="/auth/forgot-password"
+                                href="/ca/forgot-password"
                                 className="text-sm text-blue-400 hover:text-blue-300"
                             >
                                 Forgot Password?
@@ -248,12 +246,12 @@ export default function LoginPage() {
                         </Button>
 
                         <div className="text-center mt-4">
-                            <span className="text-sm text-gray-400">Don't have an account? </span>
+                            <span className="text-sm text-gray-400">Not registered as a CA? </span>
                             <Link
-                                href="/auth/signup"
+                                href="/ca/register"
                                 className="text-sm text-blue-400 hover:text-blue-300"
                             >
-                                Register
+                                Apply Now
                             </Link>
                         </div>
                     </form>

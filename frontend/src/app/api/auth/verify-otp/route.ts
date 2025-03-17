@@ -30,11 +30,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, message: "Invalid OTP" }, { status: 400 });
         }
 
-        // ✅ Mark user as verified & save
+        // Mark user as verified & save
         existingUser.isVerfied = true;
         await existingUser.save();
 
-        // ✅ Delete OTP after successful verification
+        // Delete OTP after successful verification
         await OTP.deleteOne({ email });
 
         return NextResponse.json({ success: true, message: "Email verified successfully" });

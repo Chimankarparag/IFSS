@@ -16,15 +16,15 @@ export async function verifyPassword(plainPassword: string, hashedPassword: stri
 export function generateToken(user: any): string {
     const payload = {
         id: user._id,
-        email: user.email,
+        pan: user.pan_number,
     };
-    const secret = process.env.JWT_SECRET || 'your_secret_key';
-    const options = { expiresIn: 600 }; // 10 min 
+    const secret = process.env.TOKEN_SECRET || 'IFSSproject';
+    const options = { expiresIn: 3600 }; // 1 hr 
     return jwt.sign(payload, secret, options);
 }
 
 // Verify JWT token
 export function verifyToken(token: string): any {
-    const secret = process.env.JWT_SECRET || 'IFSSproject';
+    const secret = process.env.TOKEN_SECRET || 'IFSSproject';
     return jwt.verify(token, secret);
 }
