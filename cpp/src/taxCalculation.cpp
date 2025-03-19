@@ -1,4 +1,6 @@
 #include "taxCalculation.h"
+#include "grossTotalIncome.h"
+#include "details.h"
 using namespace std;
 
 double TaxCalculation::taxAtSpecialRates = 0;
@@ -6,7 +8,7 @@ double TaxCalculation::slabTaxableIncome = 0;
 
 // Constructor initializes values to 0 and sets the reference to grossTotalIncome
 TaxCalculation::TaxCalculation(const GrossTotalIncome& grossTotalIncome, const EmployeeDetails& details, const TaxDeductions& taxDeductions,const Salary& salary)
-: grossTotalIncome(grossTotalIncome), details(details), taxDeductions(taxDeductions), salary(salary), TDS(0), advanceTaxJune15(0), advanceTaxSeptember15(0), advanceTaxDecember15(0), advanceTaxMarch15(0), monthsDelayed(0) {}
+: grossTotalIncome(grossTotalIncome), details(details), taxDeductions(taxDeductions), salary(salary), TDS(0), advanceTaxJune15(0), advanceTaxSeptember15(0), advanceTaxDecember15(0), advanceTaxMarch15(0), monthsDelayed(0), relief(0) {}
 
 // Function to take input details
 void TaxCalculation::inputIncomeDetails() {
@@ -23,6 +25,9 @@ void TaxCalculation::inputIncomeDetails() {
     cout << "\nEnter Month of ITR filing (1-12):";
     cin>>ITRFilingMonth;
     monthsDelayed = max(0,ITRFilingMonth -7);
+
+    cout<<"\nEnter the relief amount under section 89: ";
+    cin>>relief;
 
     taxAtSpecialRates = 0.78 * otherIncome.getUnexplainedIncome() + 
                         0.10 * otherIncome.getRoyaltyIncome() + 
@@ -48,8 +53,6 @@ double TaxCalculation::taxCalculationCaller() const {
     } else {
         preTax = NTR(slabTaxableIncome);
     }
-
-    cout << "Pre-Tax Amount: " << preTax << endl;
     return preTax;
 }
 
@@ -236,9 +239,6 @@ double TaxCalculation::calculateCess() const {
 }
 
 double TaxCalculation::reliefUnderSec89() const{
-    cout<<"Submit form 10E to claim these relief\nEnter the relief amount under section 89: ";
-    double relief;
-    cin>>relief;
     return min(relief, (salary.getAdvanceSalary() + salary.getArrears() ));
 }
 double TaxCalculation::taxBeforeInterest() const{

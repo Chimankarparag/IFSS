@@ -5,9 +5,11 @@
 #include<iostream>
 
 #include "incomeFromOtherSources.h"
-#include "grossTotalIncome.h"
 #include "taxDeduction.h"
 #include "details.h"
+#include "salary_17_1.h"
+
+class GrossTotalIncome;
 
 class TaxCalculation {
 public:
@@ -46,6 +48,7 @@ private:
     double advanceTaxMarch15;
     double monthsDelayed;
     int ITRFilingMonth;
+    double relief;
 
     double OTRA(double slabTaxableIncome) const;
     double OTRB(double slabTaxableIncome) const;

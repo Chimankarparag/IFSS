@@ -3,7 +3,9 @@
 
 #include "incomeUnderHeadSalaries.h"
 #include "incomeUnderHouseProperty.h"
-#include "taxCalculation.h"
+#include "incomeFromOtherSources.h"
+
+class TaxCalculation;
 
 class GrossTotalIncome {
 public:
