@@ -1,6 +1,7 @@
 #include "deductionUnderSection16.h"
 #include <iostream>
 #include <algorithm> // Include the algorithm header for std::min
+#include "details.h"
 
 using namespace std;
 
@@ -10,7 +11,11 @@ DeductionUnderSection16::DeductionUnderSection16(const NetIncome* netIncome, con
 
 // Function to calculate standard deduction
 double DeductionUnderSection16::calculateStandardDeduction() const {
-    return min(50000.0, netIncome->calculateNetIncome()); // ₹50,000 or Net Income, whichever is lower
+    if(employeeDetails->isOldTaxRegime()) {
+        return min(50000.0, netIncome->calculateNetIncome());
+    }else{
+        return min(75000.0, netIncome->calculateNetIncome()); // ₹75,000 or Net Income, whichever is lower
+    }
 }
 
 // Function to calculate entertainment allowance

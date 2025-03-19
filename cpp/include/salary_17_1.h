@@ -12,6 +12,8 @@ public:
     double getGratuity() const;
     double getLeaveEncashment() const;
     double getDearnessAllowance() const;
+    double getAdvanceSalary() const;
+    double getArrears() const;
     double getHRA() const;
     double getEntertainmentAllowance() const;
     double getProfessionalTax() const;
