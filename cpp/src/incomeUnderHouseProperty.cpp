@@ -29,14 +29,12 @@ double IncomeUnderHouseProperty::calculateIncomeFromSelfOccupiedProperty() const
 double IncomeUnderHouseProperty::calculateIncomeFromLetOutProperty() const {
     double netAnnualValue = rentalIncome - municipalTaxes - unrealisedRent;
     if(netAnnualValue <= 0) {
-        cout<<"ERROR Net Annual Value is less than or equal to 0. Hence, no income from Let-Out Property."<<endl;
         if(rentalIncome-municipalTaxes <= 0) {
-            cout<<"ERROR Rental Income is less than or equal to Municipal Taxes. Hence, no income from Let-Out Property."<<endl;
+
             municipalTaxes = rentalIncome;
             unrealisedRent = 0;
-
         }else if(rentalIncome <= unrealisedRent) {
-            cout<<"ERROR Rental Income is less than or equal to Unrealised Rent. Hence, no income from Let-Out Property."<<endl;
+            
             unrealisedRent = rentalIncome;
             municipalTaxes = 0;
         }

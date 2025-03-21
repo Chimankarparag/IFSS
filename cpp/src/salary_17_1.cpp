@@ -27,14 +27,15 @@ void Salary::inputSalaryDetails() {
     cin >> leaveEncashment;
     cout << "Enter Gratuity: ";
     cin >> gratuity;
-    cout << "Enter Other Components (for 10C deductions): ";
-    cin >> otherComponents;
     cout << "Enter HRA received: ";
     cin >> hra;
     cout << "Enter Entertainment Allowance: ";
     cin >> entertainmentAllowance;
     cout << "Enter Professional Tax: ";
     cin >> professionalTax;
+    cout << "Enter Other Components (for 10C deductions): ";
+    cin >> otherComponents;
+
 }
 
 double Salary::getBasicSalary() const {
@@ -55,6 +56,12 @@ double Salary::getLeaveEncashment() const {
 
 double Salary::getDearnessAllowance() const {
     return dearnessAllowance;
+}
+double Salary::getAdvanceSalary() const {
+    return advanceSalary;
+}
+double Salary::getArrears() const {
+    return arrears;
 }
 
 double Salary::getHRA() const {

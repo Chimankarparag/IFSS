@@ -1,58 +1,87 @@
 #include "incomeFromOtherSources.h"
 #include <iostream>
+#include <algorithm> // For std::min
 
 using namespace std;
 
 // Constructor initializes values to 0
 OtherIncome::OtherIncome()
-    : interestFromSavingsBank(0), interestOnSecurities(0), otherInterestIncome(0),
-      winningsFromLottery(0), winningsFromHorseRace(0), familyPension(0), commissionOnLotteryTickets(0),
-      commissionOrBrokerage(0), otherIncome(0) {}
+    : interestFromSavingsBank(0), interestOnSecurities(0), interestOtherThanSecurites(0),
+      incomeFromCommission(0), dividendIncome(0), winningsOtherIncome(0), familyPension(0),
+      unexplainedIncome(0), royaltyIncome(0), carbonCreditIncome(0), prematurePFWithdrawal(0) {}
 
 // Function to take input details
-void OtherIncome::inputIncomeDetails() {
+void OtherIncome::inputOtherIncomeDetails() {
     cout << "Enter Interest from Savings Bank Account: ";
     cin >> interestFromSavingsBank;
-    cout << "Enter Interest on Securities (Government Securities (G-Secs, Treasury Bills, RBI Bonds),Corporate Bonds (Debentures, Private Company Bonds)\n,Tax-Free Bonds (Issued by NHAI, REC, PFC, etc.), Municipal Bonds ,Deep Discount Bonds): ";
+    cout << "Enter Interest on Securities (Government Securities, Corporate Bonds, Deep Discount Bonds): ";
     cin >> interestOnSecurities;
     cout << "Enter Other Interest Income (Interest other than 'Interest on securities'): ";
-    cout << "Fixed Deposits (FDs), Recurring Deposits (RDs), Bank Deposits(other than Savings & FDs), Loans to Friends, Monthly Income Schemes (MIS), Post Office Time Deposits, etc.";
-    cin >> otherInterestIncome;
-    cout << "Enter Winnings Lottery, Betting, Online Games Winnings: ";
-    cin >> winningsFromLottery;
-    cout << "Enter Winnings from Horse Race: ";
-    cin >> winningsFromHorseRace;
-    cout << "Enter Income from Family Pension: ";
+    cin >> interestOtherThanSecurites;
+    cout << "Enter Income from Commission, Brokerage, Sale on lottery: ";
+    cin >> incomeFromCommission;
+    cout << "Enter Dividend Income Taxable at Normal rates: ";
+    cin >> dividendIncome;
+    cout << "Enter Winnings from Lotteries, Crossword Puzzles, Races, Card Games, etc.: ";
+    cin >> winningsOtherIncome;
+    cout << "Enter Family Pension: ";
     cin >> familyPension;
-    cout << "Enter Commission on Sale of Lottery Tickets: ";
-    cin >> commissionOnLotteryTickets;
-    cout << "Enter Commission or Brokerage: ";
-    cin >> commissionOrBrokerage;
-    cout << "Enter Other Income: ";
-    cin >> otherIncome;
+    cout << "Enter Unexplained Income (Section 115BBE): ";
+    cin >> unexplainedIncome;
+    cout << "Enter Royalty Income from Patents (Section 115BBF): ";
+    cin >> royaltyIncome;
+    cout << "Enter Income from Carbon Credit Trading (Section 115BBG): ";
+    cin >> carbonCreditIncome;
+    cout << "Enter Premature Withdrawal of PF (Before 5 years of service): ";
+    cin >> prematurePFWithdrawal;
+}
+
+// Function to calculate the deduction for Family Pension
+double OtherIncome::calculateFamilyPensionDeduction() const {
+    return min(15000.0, 0.33 * familyPension);
 }
 
 // Function to calculate total income
+double OtherIncome::calculateTaxableOtherIncome() const {
+    double familyPensionDeduction = calculateFamilyPensionDeduction();
+    return interestFromSavingsBank + interestOnSecurities + interestOtherThanSecurites +
+           incomeFromCommission + dividendIncome + (familyPension - familyPensionDeduction) +
+           prematurePFWithdrawal;
+}
 
-//this is obviously wrong
-
-// double OtherIncome::calculateTotalIncome() const {
-//     return interestFromSavingsBank + interestOnSecurities + otherInterestIncome +
-//            winningsFromLottery + winningsFromHorseRace + familyPension + commissionOnLotteryTickets +
-//            commissionOrBrokerage + otherIncome;
-// }
+double OtherIncome::calculateTotalOtherIncome() const {
+    return calculateTaxableOtherIncome() + unexplainedIncome + royaltyIncome + carbonCreditIncome + winningsOtherIncome;
+}
 
 // Function to display income details
-void OtherIncome::displayIncomeDetails() const {
+void OtherIncome::displayOtherIncomeDetails() const {
+    double familyPensionDeduction = calculateFamilyPensionDeduction();
     cout << "\nOther Income Details:\n";
     cout << "---------------------\n";
     cout << "Interest from Savings Bank Account: " << interestFromSavingsBank << endl;
     cout << "Interest on Securities: " << interestOnSecurities << endl;
-    cout << "Other Interest Income: " << otherInterestIncome << endl;
-    cout << "Winnings from Lottery or Crossword Puzzle: " << winningsFromLottery << endl;
-    cout << "Winnings from Horse Race: " << winningsFromHorseRace << endl;
-    cout << "Commission on Sale of Lottery Tickets: " << commissionOnLotteryTickets << endl;
-    cout << "Commission or Brokerage: " << commissionOrBrokerage << endl;
-    cout << "Other Income: " << otherIncome << endl;
-    cout << "Total Other Income: " << calculateTotalIncome() << endl;
+    cout << "Other Interest Income: " << interestOtherThanSecurites << endl;
+    cout << "Income from Commission, Brokerage, Sale on lottery: " << incomeFromCommission << endl;
+    cout << "Dividend Income: " << dividendIncome << endl;
+    cout << "Winnings from Lotteries, Crossword Puzzles, Races, Card Games, etc.: " << winningsOtherIncome << endl;
+    cout << "Family Pension: " << familyPension << endl;
+    cout << "Family Pension Deduction (Section 57(iia)): " << familyPensionDeduction << endl;
+    cout << "Unexplained Income (Section 115BBE): " << unexplainedIncome << endl;
+    cout << "Royalty Income from Patents (Section 115BBF): " << royaltyIncome << endl;
+    cout << "Income from Carbon Credit Trading (Section 115BBG): " << carbonCreditIncome << endl;
+    cout << "Premature Withdrawal of PF: " << prematurePFWithdrawal << endl;
+    cout << "Total Other Income: " << calculateTaxableOtherIncome() << endl;
 }
+
+// Getter functions
+double OtherIncome::getInterestFromSavingsBank() const { return interestFromSavingsBank; }
+double OtherIncome::getInterestOnSecurities() const { return interestOnSecurities; }
+double OtherIncome::getInterestOtherThanSecurites() const { return interestOtherThanSecurites; }
+double OtherIncome::getIncomeFromCommission() const { return incomeFromCommission; }
+double OtherIncome::getDividendIncome() const { return dividendIncome; }
+double OtherIncome::getWinningsOtherIncome() const { return winningsOtherIncome; }
+double OtherIncome::getFamilyPension() const { return familyPension; }
+double OtherIncome::getUnexplainedIncome() const { return unexplainedIncome; }
+double OtherIncome::getRoyaltyIncome() const { return royaltyIncome; }
+double OtherIncome::getCarbonCreditIncome() const { return carbonCreditIncome; }
+double OtherIncome::getPrematurePFWithdrawal() const { return prematurePFWithdrawal; }
