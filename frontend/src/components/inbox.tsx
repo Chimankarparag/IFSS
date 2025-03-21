@@ -13,12 +13,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
+import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 interface Message {
     _id: string;
     sender: {
         name: string;
-        email: string;
+        caid: string;
     };
     subject: string;
     content: string;
@@ -27,7 +29,9 @@ interface Message {
     createdAt: string;
 }
 
-export default function Inbox() {
+export default function Inbox(params:any) {
+
+    const user = params.user;
     const [messages, setMessages] = useState<Message[]>([]);
     const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -36,13 +40,21 @@ export default function Inbox() {
     const fetchMessages = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`/api/messages?category=${filter !== 'all' ? filter : ''}`);
+            console.log(user)
+            const response = await fetch(`/api/user/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: user.email }),
+            });
             
             if (!response.ok) {
                 throw new Error('Failed to fetch messages');
             }
             
             const data = await response.json();
+            console.log(data);
             setMessages(data);
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -58,7 +70,7 @@ export default function Inbox() {
 
     const markAsRead = async (id: string) => {
         try {
-            const response = await fetch(`/api/messages/${id}/read`, {
+            const response = await fetch(`/api/user/messages/${id}`, {
                 method: 'PUT'
             });
             
@@ -77,7 +89,7 @@ export default function Inbox() {
 
     const deleteMessage = async (id: string) => {
         try {
-            const response = await fetch(`/api/messages/${id}`, {
+            const response = await fetch(`/api/user/messages/${id}`, {
                 method: 'DELETE'
             });
             
@@ -145,12 +157,6 @@ export default function Inbox() {
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="all" onValueChange={setFilter}>
-                    <TabsList className="bg-[#232323] mb-4">
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="document">Documents</TabsTrigger>
-                        <TabsTrigger value="query">Queries</TabsTrigger>
-                        <TabsTrigger value="notification">Notifications</TabsTrigger>
-                    </TabsList>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="md:col-span-1 border border-[#333333] rounded-md overflow-hidden">
@@ -164,7 +170,7 @@ export default function Inbox() {
                                     <p>No messages found</p>
                                 </div>
                             ) : (
-                                <div className="max-h-96 overflow-y-auto">
+                                <ScrollArea className="h-96">
                                     {messages.map((message) => (
                                         <div 
                                             key={message._id}
@@ -190,9 +196,9 @@ export default function Inbox() {
                                                             {formatDate(message.createdAt).split(',')[0]}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm truncate">{message.subject}</p>
+                                                    <p className="text-sm truncate text-slate-300">{message.subject}</p>
                                                     <div className="flex items-center justify-between mt-1">
-                                                        <p className="text-xs text-slate-400 truncate">
+                                                        <p className="text-xs text-slate-500 truncate">
                                                             {message.content.substring(0, 30)}...
                                                         </p>
                                                         <Badge variant="outline" className="text-xs bg-blue-900/20 text-blue-400">
@@ -203,7 +209,7 @@ export default function Inbox() {
                                             </div>
                                         </div>
                                     ))}
-                                </div>
+                                </ScrollArea>
                             )}
                         </div>
                         
@@ -211,7 +217,7 @@ export default function Inbox() {
                             {selectedMessage ? (
                                 <div className="p-4">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-xl font-medium">{selectedMessage.subject}</h3>
+                                        <h3 className="text-xl text-slate-50 font-medium">{selectedMessage.subject}</h3>
                                         <Button 
                                             variant="destructive" 
                                             size="sm"
@@ -225,13 +231,13 @@ export default function Inbox() {
                                     
                                     <div className="flex items-center justify-between mb-4 text-sm text-slate-400">
                                         <div>
-                                            From: <span className="text-slate-300">{selectedMessage.sender.name} ({selectedMessage.sender.email})</span>
+                                            From: <span className="text-slate-300">{selectedMessage.sender.name} ({selectedMessage.sender.caid})</span>
                                         </div>
                                         <div>{formatDate(selectedMessage.createdAt)}</div>
                                     </div>
                                     
                                     <div className="border-t border-[#333333] pt-4 mt-2">
-                                        <div className="prose prose-invert max-w-none">
+                                        <div className="text-slate-100 prose prose-invert max-w-none">
                                             {selectedMessage.content.split('\n').map((paragraph, i) => (
                                                 <p key={i}>{paragraph}</p>
                                             ))}
