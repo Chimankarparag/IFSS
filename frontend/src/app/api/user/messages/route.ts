@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         const userId = await User.find(query).select('_id');
         query = { recipient: userId };
         
-        const messages = await Inbox.find(query)
+        const messages = await Inbox.find({ ...query, deletedBy: null })
             .sort({ createdAt: -1 })
             .lean();
         

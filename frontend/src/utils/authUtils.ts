@@ -15,8 +15,7 @@ export async function verifyPassword(plainPassword: string, hashedPassword: stri
 // Generate JWT token
 export function generateToken(user: any): string {
     const payload = {
-        id: user._id,
-        pan: user.pan_number,
+        id: user._id
     };
     const secret = process.env.TOKEN_SECRET || 'IFSSproject';
     const options = { expiresIn: 3600 }; // 1 hr 

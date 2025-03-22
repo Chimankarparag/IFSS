@@ -34,6 +34,11 @@ const inboxSchema = new mongoose.Schema({
         type: String,
         enum: ['general', 'document', 'query', 'notification'],
         default: 'general'
+    },
+    deletedBy: {
+        type: String,
+        enum: ['sender', 'recipient', null],
+        default: null
     }
 }, {
     timestamps: true,

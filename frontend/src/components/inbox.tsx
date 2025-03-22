@@ -15,7 +15,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-
 interface Message {
     _id: string;
     sender: {

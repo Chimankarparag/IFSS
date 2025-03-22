@@ -106,7 +106,7 @@ export default function CALoginPage() {
             }
 
             toast.success('Login successful!');
-            router.push('/');
+            router.push('/ca/dashboard');
         } catch (error: any) {
             setError(error.message || 'Invalid credentials or captcha');
             regenerateCaptcha();

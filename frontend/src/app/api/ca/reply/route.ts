@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
             subject: replyMsg.subject,
             content: replyMsg.content,
             date: replyMsg.date,
+            deletedBy: null
         });
 
         await replyMessage.save();

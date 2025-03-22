@@ -70,15 +70,14 @@ export default function CADashboardPage() {
     const [replyContent, setReplyContent] = useState('');
     const [activeTab, setActiveTab] = useState('inbox');
 
-    const fetchData = async () => {
+    const fetchMessages = async () => {
         try {
-            setIsLoading(true);
             const response = await fetch('/api/ca/message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ caId: '123456' }),
+                body: JSON.stringify({ caId: caData?.caId }),
             });
 
             const data = await response.json();
@@ -102,15 +101,37 @@ export default function CADashboardPage() {
                 folder: msg.category,
             }));
 
-            setCAData({
-                name: "John Smith",
-                caId: "123456",
-            });
             setSentMessages(sentMessages);
             setMessages(formattedMessages);
+
+        } catch (error) {
+            toast.error('Failed to load messages');
+        }
+    }
+
+    const fetchData = async () => {
+        try {
+            setIsLoading(true);
+
+            const response = await fetch('/api/ca', {
+                method: 'GET',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCAData(
+                    {
+                        name: data.name,
+                        caId: data.caid,
+                    }
+                );
+            } else {
+                router.push('/auth/ca-login');
+                throw new Error('Failed to fetch data');
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
-            toast.error('Failed to load dashboard data');
         } finally {
             setIsLoading(false);
         }
@@ -119,6 +140,12 @@ export default function CADashboardPage() {
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (caData) {
+            fetchMessages();
+        }
+    }, [caData]);
 
     const handleReply = async () => {
         if (!selectedMessage || !replyContent) return;
@@ -141,7 +168,7 @@ export default function CADashboardPage() {
                 },
                 body: JSON.stringify({
                     replyMsg,
-                    caId: "123456",
+                    caId: caData?.caId,
                 }),
             });
 
@@ -160,12 +187,30 @@ export default function CADashboardPage() {
 
     };
 
-    const handleDeleteMessage = (id: number) => {
-        setMessages(messages.filter(msg => msg.id !== id));
-        if (selectedMessage?.id === id) {
-            setSelectedMessage(null);
+    const handleDeleteMessage = async (id: number) => {
+
+        try {
+            const response = await fetch(`/api/ca/reply/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to delete message');
+            }
+    
+            setMessages(messages.filter(msg => msg.id !== id));
+    
+            if (selectedMessage?.id === id) {
+                setSelectedMessage(null);
+            }
+            toast.success('Message deleted');
+        } catch (error) {
+            console.error('Error deleting message:', error);
+            toast.error('Failed to delete message');
+        } finally {
+            fetchMessages();
         }
-        toast.success('Message deleted');
+
     };
 
     const formatDate = (dateString: string) => {
@@ -293,7 +338,7 @@ export default function CADashboardPage() {
                                 size="icon"
                                 className="bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]"
                                 onClick={() => {
-                                    fetchData();
+                                    fetchMessages();
                                     setSelectedMessage(null);
                                 }}
                             >

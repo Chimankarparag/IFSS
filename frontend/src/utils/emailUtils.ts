@@ -16,10 +16,38 @@ export async function sendEmail(email: string, otp: string) {
         });
 
         const mailOptions = {
-            from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+            from: `"IFSS" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Your Verification Code',
+            subject: 'IFSS Verification Code',
             text: `Your verification code is: ${otp}`,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log("✅ Email sent successfully:", info);
+
+        return { success: true, messageId: info.messageId };
+    } catch (error: any) {
+        console.error("❌ Error sending email:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function sendCAEmail(email: string, caId: string, password: string) {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: "sandbox.smtp.mailtrap.io",
+            port: 587,
+            auth: {
+                user: process.env.MAILTRAP_USER,
+                pass: process.env.MAILTRAP_PASS,
+            },
+        });
+
+        const mailOptions = {
+            from: `"IFSS" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Congratulations! Your CA account has been created',
+            text: `Your CA ID is: ${caId}\nYour password is: ${password}`,
         };
 
         const info = await transporter.sendMail(mailOptions);

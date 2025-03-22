@@ -12,7 +12,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             return NextResponse.json({ message: "Message ID required" }, { status: 400 });
         }
 
-        const deletedMessage = await Inbox.findByIdAndDelete(messageId);
+        const deletedMessage = await Inbox.findById(messageId);
+
+        if (deletedMessage.deletedBy === "sender") {
+            await Inbox.findByIdAndDelete(messageId);
+        } else {
+            deletedMessage.deletedBy = "recipient";
+            await deletedMessage.save();
+        }
 
         if (!deletedMessage) {
             return NextResponse.json({ message: "Message not found" }, { status: 404 });
