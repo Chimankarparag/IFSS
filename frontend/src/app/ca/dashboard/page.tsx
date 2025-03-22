@@ -31,7 +31,6 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
-import { set } from 'mongoose';
 
 export default function CADashboardPage() {
     const router = useRouter();
@@ -71,52 +70,53 @@ export default function CADashboardPage() {
     const [replyContent, setReplyContent] = useState('');
     const [activeTab, setActiveTab] = useState('inbox');
 
+    const fetchData = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch('/api/ca/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ caId: '123456' }),
+            });
+
+            const data = await response.json();
+
+            const formattedMessages = data.populatedMessages.map((msg: any) => ({
+                id: msg._id,
+                from: { id: msg.sender._id, name: msg.sender.firstName + " " + msg.sender.lastName, panNumber: msg.sender.pan_number },
+                subject: msg.subject,
+                content: msg.content,
+                date: msg.createdAt,
+                isRead: msg.isRead,
+                folder: msg.category,
+            }));
+
+            const sentMessages = data.populatedSentMessages.map((msg: any) => ({
+                id: msg._id,
+                to: { id: msg.recipient._id, name: msg.recipient.firstName + " " + msg.recipient.lastName, panNumber: msg.recipient.pan_number },
+                subject: msg.subject,
+                content: msg.content,
+                date: msg.createdAt,
+                folder: msg.category,
+            }));
+
+            setCAData({
+                name: "John Smith",
+                caId: "123456",
+            });
+            setSentMessages(sentMessages);
+            setMessages(formattedMessages);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            toast.error('Failed to load dashboard data');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                const response = await fetch('/api/ca/message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ caId: '123456' }),
-                });
-
-                const data = await response.json();
-
-                const formattedMessages = data.populatedMessages.map((msg: any) => ({
-                    id: msg._id,
-                    from: { id: msg.sender._id, name: msg.sender.firstName + " " + msg.sender.lastName, panNumber: msg.sender.pan_number },
-                    subject: msg.subject,
-                    content: msg.content,
-                    date: msg.createdAt,
-                    isRead: msg.isRead,
-                    folder: msg.category,
-                }));
-
-                const sentMessages = data.populatedSentMessages.map((msg: any) => ({
-                    id: msg._id,
-                    to: { id: msg.recipient._id, name: msg.recipient.firstName + " " + msg.recipient.lastName, panNumber: msg.recipient.pan_number },
-                    subject: msg.subject,
-                    content: msg.content,
-                    date: msg.createdAt,
-                    folder: msg.category,
-                }));
-
-                setCAData({
-                    name: "John Smith",
-                    caId: "123456",
-                });
-                setSentMessages(sentMessages);
-                setMessages(formattedMessages);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                toast.error('Failed to load dashboard data');
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchData();
     }, []);
 
@@ -146,9 +146,9 @@ export default function CADashboardPage() {
             });
 
             if (response.ok) {
-                setMessages([...messages,replyMsg]);
                 setReplyContent('');
                 toast.success('Reply sent successfully');
+                fetchData();
             } else {
                 toast.error('Failed to send reply');
             }
@@ -292,6 +292,10 @@ export default function CADashboardPage() {
                                 variant="outline"
                                 size="icon"
                                 className="bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]"
+                                onClick={() => {
+                                    fetchData();
+                                    setSelectedMessage(null);
+                                }}
                             >
                                 <RefreshCw className='text-white' size={16} />
                             </Button>

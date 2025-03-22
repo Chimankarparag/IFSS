@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 mb-8">
-                    <Inbox />
+                    <Inbox user={user} />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
