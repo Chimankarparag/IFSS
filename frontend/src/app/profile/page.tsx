@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge"; // Ensure correct import
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TaxFilingDashboard from '@/components/document';
 
 interface UserData {
     firstName: string;
@@ -58,11 +59,11 @@ export default function DashboardPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<UserData | null>(null);
+    const [activeSection, setActiveSection] = useState('dashboard');
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-
                 const response = await fetch('/api/user/profile', {
                     method: 'GET',
                 });
@@ -122,6 +123,16 @@ export default function DashboardPage() {
         return null; // or a loading state
     }
 
+    // Section title mapping
+    const sectionTitles = {
+        dashboard: "Dashboard",
+        documents: "Income Tax Return",
+        account: "Account",
+        notifications: "Notifications",
+        settings: "Settings",
+        messages: "Messages"
+    };
+
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-[#0F0F0F] text-slate-100">
             {/* Mobile menu button */}
@@ -151,7 +162,6 @@ export default function DashboardPage() {
                             <AvatarFallback className="bg-blue-500/20 text-blue-400">
                                 {user?.firstName[0]}
                             </AvatarFallback>
-
                         </Avatar>
                         <div className="overflow-hidden">
                             <p className="font-medium truncate">{user.firstName}</p>
@@ -163,11 +173,43 @@ export default function DashboardPage() {
                 <Separator className="my-4 bg-[#333333]" />
 
                 <nav className="space-y-1">
-                    <NavItem icon={<LayoutDashboard size={18} />} label="Dashboard" active />
-                    <NavItem icon={<FileText size={18} />} label="Documents" />
-                    <NavItem icon={<Users size={18} />} label="Account" />
-                    <NavItem icon={<Bell size={18} />} label="Notifications" badge={user.pendingActions} />
-                    <NavItem icon={<Settings size={18} />} label="Settings" />
+                    <NavItem 
+                        icon={<LayoutDashboard size={18} />} 
+                        label="Dashboard" 
+                        active={activeSection === 'dashboard'} 
+                        onClick={() => setActiveSection('dashboard')}
+                    />
+                    <NavItem 
+                        icon={<FileText size={18} />} 
+                        label="ITR" 
+                        active={activeSection === 'documents'} 
+                        onClick={() => setActiveSection('documents')}
+                    />
+                    <NavItem 
+                        icon={<Users size={18} />} 
+                        label="Account" 
+                        active={activeSection === 'account'} 
+                        onClick={() => setActiveSection('account')}
+                    />
+                    <NavItem 
+                        icon={<Bell size={18} />} 
+                        label="Notifications" 
+                        active={activeSection === 'notifications'} 
+                        badge={user.pendingActions}
+                        onClick={() => setActiveSection('notifications')}
+                    />
+                    <NavItem 
+                        icon={<Settings size={18} />} 
+                        label="Settings" 
+                        active={activeSection === 'settings'} 
+                        onClick={() => setActiveSection('settings')}
+                    />
+                    <NavItem 
+                        icon={<FileText size={18} />} 
+                        label="Messages" 
+                        active={activeSection === 'messages'} 
+                        onClick={() => setActiveSection('messages')}
+                    />
 
                     <div className="pt-8">
                         <Button
@@ -186,7 +228,7 @@ export default function DashboardPage() {
             <div className="flex-1 p-4 md:p-8 overflow-y-auto mt-12 md:mt-0">
                 <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold">Dashboard</h1>
+                        <h1 className="text-2xl font-bold">{sectionTitles[activeSection as keyof typeof sectionTitles]}</h1>
                         <p className="text-slate-400 mt-1">Welcome back, {user.name}</p>
                     </div>
 
@@ -224,123 +266,282 @@ export default function DashboardPage() {
                     </div>
                 </header>
 
-                {/* Stats cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {(user?.stats || []).map((stat, index) => (
-                        <Card key={index} className="overflow-hidden bg-[#1A1A1A] border-[#333333]">
-                            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                                <CardTitle className="text-lg">{stat.title}</CardTitle>
-                                <div className="p-2 bg-slate-800/50 rounded-full">
-                                    {stat.icon}
+                {/* Content sections - Show based on activeSection */}
+                {activeSection === 'dashboard' && (
+                    <>
+                        {/* Stats cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            {(user?.stats || []).map((stat, index) => (
+                                <Card key={index} className="overflow-hidden bg-[#1A1A1A] border-[#333333]">
+                                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                                        <CardTitle className="text-lg">{stat.title}</CardTitle>
+                                        <div className="p-2 bg-slate-800/50 rounded-full">
+                                            {stat.icon}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-3xl font-bold">{stat.value}</div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            {/* User info card */}
+                            <Card className="md:col-span-1 bg-[#1A1A1A] border-[#333333]">
+                                <CardHeader>
+                                    <CardTitle>Account Summary</CardTitle>
+                                    <CardDescription className="text-slate-400">Your PAN information</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="text-sm text-slate-400">PAN Number</div>
+                                            <div className="font-medium">{user.panNumber}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-slate-400">Last Login</div>
+                                            <div className="font-medium">{user.lastLogin}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-slate-400">Pending Actions</div>
+                                            <div className="font-medium text-amber-400">{user.pendingActions} actions require attention</div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Button variant="outline" className="w-full bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
+                                        View Details
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+
+                            {/* Recent activity */}
+                            <Card className="md:col-span-2 bg-[#1A1A1A] border-[#333333]">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <CardTitle>Recent Activity</CardTitle>
+                                            <CardDescription className="text-slate-400">Your latest account activities</CardDescription>
+                                        </div>
+                                        <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20">
+                                            View All
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        {(user?.recentActivity || []).map((activity) => (
+                                            <div key={activity.id} className="flex items-center justify-between pb-4 border-b border-[#333333] last:border-b-0 last:pb-0">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={cn("w-2 h-2 rounded-full", {
+                                                        "bg-emerald-400": activity.status === "completed",
+                                                        "bg-amber-400": activity.status === "pending",
+                                                        "bg-blue-400": activity.status === "processing"
+                                                    })}></div>
+                                                    <div>
+                                                        <div className="font-medium">{activity.action}</div>
+                                                        <div className="text-sm text-slate-400">{activity.date}</div>
+                                                    </div>
+                                                </div>
+                                                <Badge variant={activity.status === "completed" ? "outline" : "secondary"}
+                                                    className={cn({
+                                                        "border-emerald-800 bg-emerald-900/20 text-emerald-400": activity.status === "completed",
+                                                        "bg-amber-900/20 text-amber-400": activity.status === "pending",
+                                                        "bg-blue-900/20 text-blue-400": activity.status === "processing"
+                                                    })}>
+                                                    {activity.status}
+                                                </Badge>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Quick actions */}
+                        <Card className="bg-[#1A1A1A] border-[#333333]">
+                            <CardHeader>
+                                <CardTitle>Quick Actions</CardTitle>
+                                <CardDescription className="text-slate-400">Common tasks you can perform</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    <Button className="w-full flex items-center gap-2 justify-center bg-blue-600 hover:bg-blue-700">
+                                        <Upload size={18} />
+                                        <span>Upload Document</span>
+                                    </Button>
+                                    <Button variant="outline" className="w-full flex items-center gap-2 justify-center bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
+                                        <FileEdit size={18} />
+                                        <span>Update Profile</span>
+                                    </Button>
+                                    <Button variant="outline" className="w-full flex items-center gap-2 justify-center bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
+                                        <BarChart3 size={18} />
+                                        <span>View Reports</span>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </>
+                )}
+
+                {activeSection === 'messages' && (
+                    <div className="grid grid-cols-1 gap-6">
+                        <Inbox user={user} />
+                    </div>
+                )}
+
+                {activeSection === 'documents' && (
+                    <TaxFilingDashboard/>
+                )}
+
+                {activeSection === 'account' && (
+                    <div className="grid grid-cols-1 gap-6">
+                        <Card className="bg-[#1A1A1A] border-[#333333]">
+                            <CardHeader>
+                                <CardTitle>Account Information</CardTitle>
+                                <CardDescription className="text-slate-400">Manage your personal details</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="text-sm text-slate-400 mb-1 block">First Name</label>
+                                            <Input 
+                                                defaultValue={user.firstName} 
+                                                className="bg-[#232323] border-[#333333] focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-slate-400 mb-1 block">Last Name</label>
+                                            <Input 
+                                                defaultValue={user.lastName} 
+                                                className="bg-[#232323] border-[#333333] focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-slate-400 mb-1 block">Email Address</label>
+                                            <Input 
+                                                defaultValue={user.email} 
+                                                className="bg-[#232323] border-[#333333] focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-slate-400 mb-1 block">PAN Number</label>
+                                            <Input 
+                                                defaultValue={user.panNumber} 
+                                                disabled 
+                                                className="bg-[#232323] border-[#333333] opacity-70"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <Button className="bg-blue-600 hover:bg-blue-700">Save Changes</Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
+                {activeSection === 'notifications' && (
+                    <div className="grid grid-cols-1 gap-6">
+                        <Card className="bg-[#1A1A1A] border-[#333333]">
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Notifications</CardTitle>
+                                        <CardDescription className="text-slate-400">You have {user.pendingActions} unread notifications</CardDescription>
+                                    </div>
+                                    <Button variant="outline" size="sm" className="bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]">
+                                        Mark All as Read
+                                    </Button>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-3xl font-bold">{stat.value}</div>
+                                <div className="space-y-4">
+                                    {(user?.recentActivity || []).map((activity) => (
+                                        <Card key={activity.id} className="bg-[#232323] border-[#333333]">
+                                            <CardContent className="p-4">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className={cn("w-2 h-2 rounded-full mt-2", {
+                                                            "bg-emerald-400": activity.status === "completed",
+                                                            "bg-amber-400": activity.status === "pending",
+                                                            "bg-blue-400": activity.status === "processing"
+                                                        })}></div>
+                                                        <div>
+                                                            <div className="font-medium">{activity.action}</div>
+                                                            <div className="text-sm text-slate-400 mt-1">{activity.date}</div>
+                                                            <div className="text-sm text-slate-300 mt-2">Additional details about this notification would appear here.</div>
+                                                        </div>
+                                                    </div>
+                                                    <Badge variant={activity.status === "completed" ? "outline" : "secondary"}
+                                                        className={cn({
+                                                            "border-emerald-800 bg-emerald-900/20 text-emerald-400": activity.status === "completed",
+                                                            "bg-amber-900/20 text-amber-400": activity.status === "pending",
+                                                            "bg-blue-900/20 text-blue-400": activity.status === "processing"
+                                                        })}>
+                                                        {activity.status}
+                                                    </Badge>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
                             </CardContent>
                         </Card>
-                    ))}
-                </div>
+                    </div>
+                )}
 
-                <div className="grid grid-cols-1 gap-6 mb-8">
-                    <Inbox user={user} />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {/* User info card */}
-                    <Card className="md:col-span-1 bg-[#1A1A1A] border-[#333333]">
-                        <CardHeader>
-                            <CardTitle>Account Summary</CardTitle>
-                            <CardDescription className="text-slate-400">Your PAN information</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
+                {activeSection === 'settings' && (
+                    <div className="grid grid-cols-1 gap-6">
+                        <Card className="bg-[#1A1A1A] border-[#333333]">
+                            <CardHeader>
+                                <CardTitle>Account Settings</CardTitle>
+                                <CardDescription className="text-slate-400">Manage your preferences</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
                                 <div>
-                                    <div className="text-sm text-slate-400">PAN Number</div>
-                                    <div className="font-medium">{user.panNumber}</div>
-                                </div>
-                                <div>
-                                    <div className="text-sm text-slate-400">Last Login</div>
-                                    <div className="font-medium">{user.lastLogin}</div>
-                                </div>
-                                <div>
-                                    <div className="text-sm text-slate-400">Pending Actions</div>
-                                    <div className="font-medium text-amber-400">{user.pendingActions} actions require attention</div>
-                                </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button variant="outline" className="w-full bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
-                                View Details
-                            </Button>
-                        </CardFooter>
-                    </Card>
-
-                    {/* Recent activity */}
-                    <Card className="md:col-span-2 bg-[#1A1A1A] border-[#333333]">
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <CardTitle>Recent Activity</CardTitle>
-                                    <CardDescription className="text-slate-400">Your latest account activities</CardDescription>
-                                </div>
-                                <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20">
-                                    View All
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {(user?.recentActivity || []).map((activity) => (
-                                    <div key={activity.id} className="flex items-center justify-between pb-4 border-b border-[#333333] last:border-b-0 last:pb-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn("w-2 h-2 rounded-full", {
-                                                "bg-emerald-400": activity.status === "completed",
-                                                "bg-amber-400": activity.status === "pending",
-                                                "bg-blue-400": activity.status === "processing"
-                                            })}></div>
-                                            <div>
-                                                <div className="font-medium">{activity.action}</div>
-                                                <div className="text-sm text-slate-400">{activity.date}</div>
+                                    <h3 className="text-lg font-medium mb-4">Notifications</h3>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-slate-300">Email Notifications</label>
+                                            <div className="relative inline-block w-12 h-6 rounded-full bg-[#333333]">
+                                                <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-slate-400"></div>
                                             </div>
                                         </div>
-                                        <Badge variant={activity.status === "completed" ? "outline" : "secondary"}
-                                            className={cn({
-                                                "border-emerald-800 bg-emerald-900/20 text-emerald-400": activity.status === "completed",
-                                                "bg-amber-900/20 text-amber-400": activity.status === "pending",
-                                                "bg-blue-900/20 text-blue-400": activity.status === "processing"
-                                            })}>
-                                            {activity.status}
-                                        </Badge>
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-slate-300">SMS Notifications</label>
+                                            <div className="relative inline-block w-12 h-6 rounded-full bg-blue-600">
+                                                <div className="absolute right-1 top-1 w-4 h-4 rounded-full bg-white"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Quick actions */}
-                <Card className="bg-[#1A1A1A] border-[#333333]">
-                    <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                        <CardDescription className="text-slate-400">Common tasks you can perform</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            <Button className="w-full flex items-center gap-2 justify-center bg-blue-600 hover:bg-blue-700">
-                                <Upload size={18} />
-                                <span>Upload Document</span>
-                            </Button>
-                            <Button variant="outline" className="w-full flex items-center gap-2 justify-center bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
-                                <FileEdit size={18} />
-                                <span>Update Profile</span>
-                            </Button>
-                            <Button variant="outline" className="w-full flex items-center gap-2 justify-center bg-[#232323] border-[#333333] hover:bg-[#2A2A2A] text-slate-100">
-                                <BarChart3 size={18} />
-                                <span>View Reports</span>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                                </div>
+                                <Separator className="bg-[#333333]" />
+                                <div>
+                                    <h3 className="text-lg font-medium mb-4">Security</h3>
+                                    <Button variant="outline" className="w-full justify-start text-left bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]">
+                                        Change Password
+                                    </Button>
+                                </div>
+                                <Separator className="bg-[#333333]" />
+                                <div>
+                                    <h3 className="text-lg font-medium mb-4">Theme</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Button variant="outline" className="bg-[#0F0F0F] border-blue-600 text-blue-400">
+                                            Dark
+                                        </Button>
+                                        <Button variant="outline" className="bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]">
+                                            Light
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -351,22 +552,25 @@ function NavItem({
     icon,
     label,
     active = false,
-    badge
+    badge,
+    onClick
 }: {
     icon: React.ReactNode;
     label: string;
     active?: boolean;
     badge?: number;
+    onClick?: () => void;
 }) {
     return (
         <div
+            onClick={onClick}
             className={`
-        flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors
-        ${active
+                flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors
+                ${active
                     ? 'bg-[#2A2A2A] text-blue-400'
                     : 'text-slate-400 hover:bg-[#232323] hover:text-slate-200'
                 }
-      `}
+            `}
         >
             <div className="flex items-center gap-3">
                 {icon}

@@ -84,7 +84,7 @@ export default function CADashboardPage() {
 
             const formattedMessages = data.populatedMessages.map((msg: any) => ({
                 id: msg._id,
-                from: { id: msg.sender._id, name: msg.sender.firstName + " " + msg.sender.lastName, panNumber: msg.sender.pan_number },
+                from: { id: msg.sender._id, name: msg.sender.name || msg.sender.firstName + " " + msg.sender.lastName, panNumber: msg.sender.pan_number },
                 subject: msg.subject,
                 content: msg.content,
                 date: msg.createdAt,
@@ -103,7 +103,6 @@ export default function CADashboardPage() {
 
             setSentMessages(sentMessages);
             setMessages(formattedMessages);
-
         } catch (error) {
             toast.error('Failed to load messages');
         }
@@ -429,7 +428,7 @@ export default function CADashboardPage() {
                                                 </div>
                                             </div>
 
-                                            {selectedMessage.folder === 'inbox' && (
+                                            {selectedMessage.folder === 'inbox' && selectedMessage.from?.panNumber && (
                                                 <div className="border-t border-[#333333] pt-4">
                                                     <h4 className="text-sm font-medium mb-2 text-white/50">Reply</h4>
                                                     <div className="space-y-4">

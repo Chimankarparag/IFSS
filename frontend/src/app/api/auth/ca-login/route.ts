@@ -25,11 +25,13 @@ export async function POST(request: NextRequest) {
 
     // Find user by PAN number
     const ca = await CA.findOne({ caid: caId });
-
-    console.log(ca, caId);
     
     if (!ca) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+    }
+
+    if (ca.status !== "active") {
+      return NextResponse.json({ message: "Account is inactive" }, { status: 402 });
     }
     
     // Verify password

@@ -210,15 +210,15 @@ export default function SignupPage() {
                                             <FormControl>
                                                 <RadioGroup className='flex' onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormItem className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="Male" id="male" className='data-[state=checked]:bg-white' />
+                                                        <RadioGroupItem value="Male" id="male" />
                                                         <FormLabel htmlFor="male">Male</FormLabel>
                                                     </FormItem>
                                                     <FormItem className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="Female" id="female" className='data-[state=checked]:bg-white' />
+                                                        <RadioGroupItem value="Female" id="female"  />
                                                         <FormLabel htmlFor="female">Female</FormLabel>
                                                     </FormItem>
                                                     <FormItem className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="Transgender" id="transgender" className='data-[state=checked]:bg-white' />
+                                                        <RadioGroupItem value="Transgender" id="transgender" />
                                                         <FormLabel htmlFor="transgender">Transgender</FormLabel>
                                                     </FormItem>
                                                 </RadioGroup>
@@ -243,7 +243,7 @@ export default function SignupPage() {
                                 )}
                             />
 
-                            <Button type="submit" className='bg-[#2A2A2A] text-[#D4D4D4]'>Sign Up</Button>
+                            <Button type="submit" className='bg-[#2A2A2A] text-[#D4D4D4] hover:bg-slate-900'>Sign Up</Button>
                         </form>
                     </Form>
                 </div>

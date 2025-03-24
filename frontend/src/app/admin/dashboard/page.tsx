@@ -17,6 +17,7 @@ import {
     Filter
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Switch } from '@/components/ui/switch';
 import {
     Card,
     CardContent,
@@ -64,7 +65,14 @@ export default function AdminDashboardPage() {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
-    const [adminData, setAdminData] = useState<{ name: string; adminId: string } | null>(null);
+    const [adminData, setAdminData] = useState<{
+        name: string;
+        adminId: string;
+        email: string;
+        currentPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+    } | null>(null);
     const [messages, setMessages] = useState<Array<{
         id: number;
         to: { id: number; name: string; caId: string };
@@ -104,6 +112,12 @@ export default function AdminDashboardPage() {
         totalMessages: 0,
         unreadMessages: 0,
     });
+    const [systemPreferences, setSystemPreferences] = useState({
+        emailNotifications: true,
+        autoApproveCAs: false,
+        darkMode: true,
+        sessionTimeout: '30'
+    });
 
     const fetchData = async () => {
         try {
@@ -119,6 +133,10 @@ export default function AdminDashboardPage() {
             setAdminData({
                 name: data.name,
                 adminId: data.adminId,
+                email: 'ifsspro@gmail.com',
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
             });
 
             // Mock messages data
@@ -157,19 +175,8 @@ export default function AdminDashboardPage() {
                 },
             ];
 
-            setMessages(mockMessages);
-
-            // Dashboard statistics
-            setDashboardStats({
-                totalCAs: 5,
-                activeCAs: 3,
-                pendingCAs: 1,
-                totalMessages: 4,
-                unreadMessages: 2,
-            });
-
         } catch (error) {
-            toast.error('Failed to load data');
+            toast.error('Login First!');
             router.push('/auth/admin-login');
         } finally {
             setIsLoading(false);
@@ -189,9 +196,9 @@ export default function AdminDashboardPage() {
             const caUsersData = await regCAUsers.json();
 
             const formattedCAUsers = caUsersData.map((user: any, index: number) => ({
-                id: index + 1, 
+                id: index + 1,
                 _id: user._id,
-                name:  user.name || user.firstName + " " + user.lastName || "Unknown", // Default to "Unknown" if name is missing
+                name: user.name || user.firstName + " " + user.lastName || "Unknown", // Default to "Unknown" if name is missing
                 caId: user.caId || user.caid || "N/A", // Default to "N/A" if caId is missing
                 email: user.email || "N/A", // Default to "N/A" if email is missing
                 status: user.status || "pending", // Default to "pending" if status is missing
@@ -242,15 +249,142 @@ export default function AdminDashboardPage() {
         }
     };
 
+    const caDeactivate = async (id: string) => {
+        try {
+            const user = caUsers.find(u => u._id == id);
+
+            if (!user) {
+                toast.error('User not found');
+                return;
+            }
+
+            const response = await fetch('/api/admin/ca/ca-reg',
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: user._id }),
+                }
+            );
+
+            if (!response.ok) {
+                toast.error('Failed to deactivate CA user');
+                return;
+            }
+
+            const updatedUsers = caUsers.map(u => {
+                if (u._id === id) {
+                    return { ...u, status: 'inactive', isDeactivated: true };
+                }
+                return u;
+            });
+
+            setCAUsers(updatedUsers);
+            toast.success('CA user deactivated successfully');
+        } catch (error) {
+            toast.error('An error occurred during deactivation');
+        }
+    }
+
+    const caReactivate = async (id: string) => {
+        try {
+            const user = caUsers.find(u => u._id == id);
+
+            if (!user) {
+                toast.error('User not found');
+                return;
+            }
+
+            const response = await fetch('/api/admin/ca/ca-reg',
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: user._id }),
+                }
+            );
+
+            if (!response.ok) {
+                toast.error('Failed to reactivate CA user');
+                return;
+            }
+
+            const updatedUsers = caUsers.map(u => {
+                if (u._id === id) {
+                    return { ...u, status: 'active', isReactivated: true };
+                }
+                return u;
+            });
+
+            setCAUsers(updatedUsers);
+            toast.success('CA user reactivated successfully');
+        } catch (error) {
+            toast.error('An error occurred during reactivation');
+        }
+    }
+
+    const fetchMessages = async () => {
+        try {
+            const response = await fetch('/api/admin/messages/fetch-message',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                toast.error('Failed to fetch message!');
+                return;
+            }
+
+            const data = await response.json();
+
+            const formattedMessages = data.map((message: any, index: number) => ({
+                id: index + 1,
+                to: { id: message.to.id, name: message.to.name, caId: message.to.caId },
+                subject: message.subject,
+                content: message.content,
+                date: message.date,
+                status: message.status
+            }));
+
+            setMessages(formattedMessages);
+
+        } catch (error) {
+            toast.error('Failed to fetch message!');
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
 
     useEffect(() => {
+        fetchMessages();
+    },[]);
+
+    useEffect(() => {
         fetchCAUsers();
     }, []);
 
-    const handleSendMessage = () => {
+    useEffect(() => {
+        if (!caUsers || !messages) return;
+    
+        setDashboardStats({
+            totalCAs: caUsers.filter(ca => ca.status != 'pending').length,
+            activeCAs: caUsers.filter(ca => ca.status === 'active').length,
+            pendingCAs: caUsers.filter(ca => ca.status === 'pending').length,
+            totalMessages: messages.length,
+            unreadMessages: messages.filter(msg => !msg.isRead).length, 
+        });
+    }, [caUsers, messages]); 
+    
+
+    const handleSendMessage = async () => {
         if (!newMessageSubject.trim() || !newMessageContent.trim() || !newMessageRecipient) {
             toast.error('Please fill all fields');
             return;
@@ -271,6 +405,28 @@ export default function AdminDashboardPage() {
             date: new Date().toISOString(),
             status: "sent"
         };
+
+        try {
+            const response = await fetch('/api/admin/messages/reply',
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({newMsg, Id: recipient._id, admin: adminData?.adminId}),
+                }
+            );
+
+            if (!response.ok) {
+                toast.error('Failed to send message!');
+                return;
+            }
+
+            toast.success('Message Sent successfully!');
+        } catch (error) {
+            toast.error('Failed to send message!');
+        }
+        
 
         setMessages([newMsg, ...messages]);
         setNewMessageOpen(false);
@@ -308,17 +464,109 @@ export default function AdminDashboardPage() {
                 : msg.status === activeTab
         );
 
-        // Filter CA users based on the active tab
+    // Filter CA users based on the active tab
     const filteredCAUsers = activeTab === "all" ? caUsers : caUsers.filter(user => user.status === activeTab);
-    
+
     const handleLogout = async () => {
         try {
+            const response = await fetch('/api/auth/admin/logout',
+                {
+                    method: 'GET',
+                }
+            );
+
+            if (!response.ok) {
+                toast.error('Failed to logout');
+                return;
+            }
+
             sessionStorage.clear();
             router.push('/');
             toast.success('Logged out successfully');
         } catch (error) {
             toast.error('An error occurred during logout');
         }
+    };
+
+    const handleAdminDataChange = (e: { target: { id: any; value: any; }; }) => {
+        const { id, value } = e.target;
+        setAdminData(prev => ({
+            ...prev!,
+            [id]: value
+        }));
+    };
+
+    const handleToggleChange = (key: keyof typeof systemPreferences) => {
+        setSystemPreferences(prev => ({
+            ...prev,
+            [key]: !prev[key]
+        }));
+    };
+
+    const handleTimeoutChange = (value: any) => {
+        setSystemPreferences(prev => ({
+            ...prev,
+            sessionTimeout: value
+        }));
+    };
+
+    const saveAdminChanges = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+
+        // Password validation
+        if (adminData && adminData.newPassword && adminData.newPassword !== adminData.confirmPassword) {
+            toast.error('New passwords do not match');
+            return;
+        }
+
+        if (adminData && adminData.newPassword && !adminData.currentPassword) {
+            toast.error('Please enter your current password');
+            return;
+        }
+
+        if (adminData && !adminData.newPassword && !adminData.confirmPassword){
+            toast.error('Enter new password and confirm password to update');
+            return;
+        }
+
+        if (adminData?.newPassword && !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(adminData.newPassword)) {
+            toast.error('Password must be at least 8 characters long and include both letters and numbers');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/update/credentials',
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(adminData),
+                }
+            );
+
+            const res = await response.json();
+            console.log(res)
+    
+            if (!response.ok) {
+                if(response.status == 402){
+                    toast.error(res.error || 'Current password is invalid');
+                }
+                toast.error('Failed to update settings!');
+                return;
+            }
+        } catch (error) {
+            
+        }
+
+        toast.success('Admin settings saved successfully, logging out...');
+        router.push('/auth/admin-login')
+    };
+
+    const saveSystemPreferences = () => {
+        // Here you would typically make an API call to save the preferences
+        console.log('Saving system preferences:', systemPreferences);
+        toast.success('System preferences applied');
     };
 
     const toggleSidebar = () => {
@@ -692,7 +940,7 @@ export default function AdminDashboardPage() {
                                             size="icon"
                                             className="bg-[#232323] border-[#333333] hover:bg-[#2A2A2A]"
                                             onClick={() => {
-                                                fetchData();
+                                                fetchMessages();
                                                 setSelectedMessage(null);
                                             }}
                                         >
@@ -896,13 +1144,13 @@ export default function AdminDashboardPage() {
                                                                 <DropdownMenuItem className="cursor-pointer">Edit Details</DropdownMenuItem>
                                                                 <DropdownMenuItem className="cursor-pointer">Send Message</DropdownMenuItem>
                                                                 {user.status === 'pending' && (
-                                                                    <DropdownMenuItem onClick={()=>{caApprove(user._id)}} className="cursor-pointer text-green-400">Approve</DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => { caApprove(user._id) }} className="cursor-pointer text-green-400">Approve</DropdownMenuItem>
                                                                 )}
                                                                 {user.status === 'active' && (
-                                                                    <DropdownMenuItem className="cursor-pointer text-red-400">Deactivate</DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => { caDeactivate(user._id) }} className="cursor-pointer text-red-400">Deactivate</DropdownMenuItem>
                                                                 )}
                                                                 {user.status === 'inactive' && (
-                                                                    <DropdownMenuItem className="cursor-pointer text-green-400">Reactivate</DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => { caReactivate(user._id) }} className="cursor-pointer text-green-400">Reactivate</DropdownMenuItem>
                                                                 )}
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -958,154 +1206,163 @@ export default function AdminDashboardPage() {
                 )}
 
                 {activeSection === 'settings' && (
-                    <>
-                        <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold">Settings</h1>
-                                <p className="text-slate-400 mt-1">Configure system preferences</p>
-                            </div>
-                        </header>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <Card className="bg-[#1A1A1A] border-[#333333] md:col-span-2">
-                                <CardHeader>
-                                    <CardTitle>Admin Settings</CardTitle>
-                                    <CardDescription>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <Card className="bg-[#0F0F0F] border-[#333333] lg:col-span-2">
+                            <form onSubmit={saveAdminChanges}>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Admin Settings</CardTitle>
+                                    <CardDescription className="text-sm text-slate-400">
                                         Manage your account and preferences
                                     </CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label htmlFor="name" className="text-sm font-medium">
-                                                Admin Name
-                                            </label>
-                                            <Input
-                                                id="name"
-                                                defaultValue={adminData?.name}
-                                                className="bg-[#232323] border-[#333333]"
-                                            />
-                                        </div>
+                                <CardContent className="space-y-5">
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium mb-1.5">
+                                            Admin Name
+                                        </label>
+                                        <Input
+                                            id="name"
+                                            value={adminData?.name}
+                                            onChange={handleAdminDataChange}
+                                            className="bg-[#181818] border-[#333333] h-10"
+                                        />
+                                    </div>
 
-                                        <div className="space-y-2">
-                                            <label htmlFor="email" className="text-sm font-medium">
-                                                Email Address
-                                            </label>
-                                            <Input
-                                                id="email"
-                                                defaultValue="admin@example.com"
-                                                className="bg-[#232323] border-[#333333]"
-                                            />
-                                        </div>
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-medium mb-1.5">
+                                            Email Address
+                                        </label>
+                                        <Input
+                                            id="email"
+                                            value={adminData?.email}
+                                            onChange={handleAdminDataChange}
+                                            className="bg-[#181818] border-[#333333] h-10"
+                                        />
+                                    </div>
 
-                                        <div className="space-y-2">
-                                            <label htmlFor="currentPw" className="text-sm font-medium">
-                                                Current Password
+                                    <div>
+                                        <label htmlFor="currentPassword" className="block text-sm font-medium mb-1.5">
+                                            Current Password
+                                        </label>
+                                        <Input
+                                            id="currentPassword"
+                                            type="password"
+                                            value={adminData?.currentPassword}
+                                            onChange={handleAdminDataChange}
+                                            className="bg-[#181818] border-[#333333] h-10"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label htmlFor="newPassword" className="block text-sm font-medium mb-1.5">
+                                                New Password
                                             </label>
                                             <Input
-                                                id="currentPw"
+                                                id="newPassword"
                                                 type="password"
-                                                className="bg-[#232323] border-[#333333]"
+                                                value={adminData?.newPassword}
+                                                onChange={handleAdminDataChange}
+                                                className="bg-[#181818] border-[#333333] h-10"
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label htmlFor="newPw" className="text-sm font-medium">
-                                                    New Password
-                                                </label>
-                                                <Input
-                                                    id="newPw"
-                                                    type="password"
-                                                    className="bg-[#232323] border-[#333333]"
-                                                />
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <label htmlFor="confirmPw" className="text-sm font-medium">
-                                                    Confirm New Password
-                                                </label>
-                                                <Input
-                                                    id="confirmPw"
-                                                    type="password"
-                                                    className="bg-[#232323] border-[#333333]"
-                                                />
-                                            </div>
+                                        <div>
+                                            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1.5">
+                                                Confirm New Password
+                                            </label>
+                                            <Input
+                                                id="confirmPassword"
+                                                type="password"
+                                                value={adminData?.confirmPassword}
+                                                onChange={handleAdminDataChange}
+                                                className="bg-[#181818] border-[#333333] h-10"
+                                            />
                                         </div>
                                     </div>
                                 </CardContent>
-                                <CardFooter>
-                                    <Button className="bg-green-700 hover:bg-green-600">
+                                <CardFooter className="pt-2">
+                                    <Button type="submit" className="bg-green-600 hover:bg-green-700 h-10">
                                         Save Changes
                                     </Button>
                                 </CardFooter>
-                            </Card>
+                            </form>
+                        </Card>
 
-                            <Card className="bg-[#1A1A1A] border-[#333333]">
-                                <CardHeader>
-                                    <CardTitle>System Preferences</CardTitle>
-                                    <CardDescription>
-                                        Configure system behavior
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="space-y-0.5">
-                                                <label className="text-sm font-medium">Email Notifications</label>
-                                                <p className="text-xs text-slate-400">Receive email alerts</p>
-                                            </div>
-                                            <div className="h-6 w-11 cursor-pointer bg-green-900 rounded-full relative">
-                                                <div className="h-5 w-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between">
-                                            <div className="space-y-0.5">
-                                                <label className="text-sm font-medium">Auto-Approve CAs</label>
-                                                <p className="text-xs text-slate-400">Automatically approve registrations</p>
-                                            </div>
-                                            <div className="h-6 w-11 cursor-pointer bg-[#333333] rounded-full relative">
-                                                <div className="h-5 w-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between">
-                                            <div className="space-y-0.5">
-                                                <label className="text-sm font-medium">Dark Mode</label>
-                                                <p className="text-xs text-slate-400">Use dark color scheme</p>
-                                            </div>
-                                            <div className="h-6 w-11 cursor-pointer bg-green-900 rounded-full relative">
-                                                <div className="h-5 w-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2 pt-4">
-                                            <label htmlFor="timeout" className="text-sm font-medium">
-                                                Session Timeout (minutes)
-                                            </label>
-                                            <Select defaultValue="30">
-                                                <SelectTrigger className="bg-[#232323] border-[#333333]">
-                                                    <SelectValue placeholder="Select timeout" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-[#232323] border-[#333333]">
-                                                    <SelectItem value="15">15 minutes</SelectItem>
-                                                    <SelectItem value="30">30 minutes</SelectItem>
-                                                    <SelectItem value="60">60 minutes</SelectItem>
-                                                    <SelectItem value="120">120 minutes</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                        <Card className="bg-[#0F0F0F] border-[#333333]">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-lg">System Preferences</CardTitle>
+                                <CardDescription className="text-sm text-slate-400">
+                                    Configure system behavior
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium">Email Notifications</p>
+                                        <p className="text-xs text-slate-400">Receive email alerts</p>
                                     </div>
-                                </CardContent>
-                                <CardFooter>
-                                    <Button className="w-full bg-green-700 hover:bg-green-600">
-                                        Apply Settings
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </div>
-                    </>
+                                    <Switch
+                                        checked={systemPreferences.emailNotifications}
+                                        onCheckedChange={() => handleToggleChange('emailNotifications')}
+                                        className="data-[state=checked]:bg-green-600"
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium">Auto-Approve CAs</p>
+                                        <p className="text-xs text-slate-400">Automatically approve registrations</p>
+                                    </div>
+                                    <Switch
+                                        checked={systemPreferences.autoApproveCAs}
+                                        onCheckedChange={() => handleToggleChange('autoApproveCAs')}
+                                        className="data-[state=checked]:bg-green-600"
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium">Dark Mode</p>
+                                        <p className="text-xs text-slate-400">Use dark color scheme</p>
+                                    </div>
+                                    <Switch
+                                        checked={systemPreferences.darkMode}
+                                        onCheckedChange={() => handleToggleChange('darkMode')}
+                                        className="data-[state=checked]:bg-green-600"
+                                    />
+                                </div>
+
+                                <div className="pt-1">
+                                    <label htmlFor="timeout" className="block text-sm font-medium mb-1.5">
+                                        Session Timeout (minutes)
+                                    </label>
+                                    <Select
+                                        value={systemPreferences.sessionTimeout}
+                                        onValueChange={handleTimeoutChange}
+                                    >
+                                        <SelectTrigger className="bg-[#181818] border-[#333333] h-10">
+                                            <SelectValue placeholder="Select timeout" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#181818] border-[#333333]">
+                                            <SelectItem value="15">15 minutes</SelectItem>
+                                            <SelectItem value="30">30 minutes</SelectItem>
+                                            <SelectItem value="60">60 minutes</SelectItem>
+                                            <SelectItem value="120">120 minutes</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="pt-4">
+                                <Button
+                                    className="w-full bg-green-600 hover:bg-green-700 h-10"
+                                    onClick={saveSystemPreferences}
+                                >
+                                    Apply Settings
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </div>
                 )}
             </div>
         </div>

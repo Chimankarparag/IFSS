@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import mongoose from "mongoose";
 
 const caSchema = new mongoose.Schema({
@@ -22,6 +23,11 @@ const caSchema = new mongoose.Schema({
         type: String,
         required: [true, "Password is required"],
         trim: true,
+    },
+    status: {
+        type: String,
+        default: "active",
+        enum: ["active", "inactive"],
     },
 });
 

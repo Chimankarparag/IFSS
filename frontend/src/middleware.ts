@@ -1,21 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('token')?.value;
+  const token = req.cookies.get("token")?.value;
+  const CAtoken = req.cookies.get("CAtoken")?.value;
+  const adminToken = req.cookies.get("adminToken")?.value;
 
-  if (!token) {
-    // Redirect to login if token is missing
-    console.log("No token found, redirecting to login");
-    return NextResponse.redirect(new URL('/auth/login', req.url));
+  const pathname = req.nextUrl.pathname;
+
+  // Redirect Users to Login if They Are Not Authenticated
+  if (pathname.startsWith("/profile") && !token) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  console.log("Logged in with token:", token);
+  // Redirect CAs to Login if They Are Not Authenticated
+  if (pathname.startsWith("/ca") && !CAtoken) {
+    return NextResponse.redirect(new URL("/auth/ca-login", req.url));
+  }
 
-  // Continue if token exists
+  // Redirect Admins to Login if They Are Not Authenticated
+  if (pathname.startsWith("/admin") && !adminToken) {
+    return NextResponse.redirect(new URL("/auth/admin-login", req.url));
+  }
+
+  // Continue if the user has the correct token
   return NextResponse.next();
 }
 
-// Define which routes the middleware should apply to
+// 🌟 Apply Middleware to Specific Routes
 export const config = {
-  matcher: ['/profile/:path*'],
+  matcher: ["/profile/:path*", "/ca/:path*", "/admin/:path*"],
 };

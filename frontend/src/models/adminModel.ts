@@ -11,7 +11,12 @@ const adminSchema = new mongoose.Schema({
         required: [true, "AdminID is required"],
         unique: true,
         trim: true,
-    }, 
+    },
+    email: {
+        type: String,
+        required: [true, "Email is required"],
+        trim: true,
+    },
     password: {
         type: String,
         required: [true, "Password is required"],

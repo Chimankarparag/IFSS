@@ -77,3 +77,61 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    try {
+        await connect(); // Connect to the database
+
+        const body = await request.json();
+        const { id } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: "CA ID is required" }, { status: 400 });
+        }
+
+        // Find the CA by ID
+        const ca = await CA.findById(id);
+
+        if (!ca) {
+            return NextResponse.json({ error: "CA not found" }, { status: 404 });
+        }
+
+        // Update the status to "inactive"
+        ca.status = "inactive";
+        await ca.save();
+
+        return NextResponse.json({ message: "CA set to inactive successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error setting CA to inactive:", error);
+        return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        await connect(); // Connect to the database
+
+        const body = await request.json();
+        const { id } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: "CA ID is required" }, { status: 400 });
+        }
+
+        // Find the CA by ID
+        const ca = await CA.findById(id);
+
+        if (!ca) {
+            return NextResponse.json({ error: "CA not found" }, { status: 404 });
+        }
+
+        // Update the status to "active"
+        ca.status = "active";
+        await ca.save();
+
+        return NextResponse.json({ message: "CA set to active successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error setting CA to inactive:", error);
+        return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+    }
+}

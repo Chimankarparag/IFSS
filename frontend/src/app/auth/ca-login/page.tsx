@@ -102,6 +102,13 @@ export default function CALoginPage() {
             const result = await response.json();
 
             if (!response.ok) {
+                if(response.status === 400) {
+                    throw new Error('Captcha session expired');
+                } else if(response.status === 401) {
+                    throw new Error('Invalid credentials or captcha');
+                } else if(response.status === 402) {
+                    throw new Error('Account is Deactivated by Admin, Mail them for enquiry');
+                }
                 throw new Error(result.message || 'Authentication failed');
             }
 

@@ -4,6 +4,7 @@ import Message from "@/models/messageModel";
 import Inbox from "@/models/inboxModel";
 import CA from "@/models/caModel";
 import User from "@/models/userModel";
+import Admin from "@/models/adminModel";
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,7 +30,10 @@ export async function POST(request: NextRequest) {
         }
 
         const populatedMessages = await Promise.all(messages.map(async (message) => {
-            const sender = await User.findById(message.sender);
+            let sender = await User.findById(message.sender);
+            if (!sender){
+                sender = await Admin.findById(message.sender);
+            }
             return {
                 ...message.toObject(),
                 sender,
