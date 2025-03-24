@@ -1,0 +1,109 @@
+Enter basic salary: 0
+Enter pension: 0
+Enter dearness allowance: 0
+Enter Bonus & Commissions: 0
+Enter Advance Salary: 0
+Enter Arrears of Salary: 0
+Enter Leave Encashment: 0
+Enter Gratuity: 0
+Enter HRA received: 0
+Enter Entertainment Allowance: 0
+Enter Professional Tax: 0
+Enter Other Components (for 10C deductions): 0
+
+
+Is the employee a government employee? (y/n): y
+Enter the age of the employee: 0
+Is the employee with gratuity? (y/n): 0
+Enter the number of unused leaves (in months): 0
+Is the employee retiring? (y/n): 0
+Is the employee under the old tax regime? (y/n): y
+
+
+
+Enter rent paid: 0
+Is it a metro city? (1 for yes, 0 for no): 0
+Enter LTA Amount Claimed: 0
+Enter Children Education Allowance: 0
+Enter Hostel Allowance: 0
+Enter Transport Allowance: 0
+Enter Special Allowance: 0
+Enter Total Pension: 0
+Enter Commuted Pension: 0
+Enter VRS Compensation: 0
+
+
+Rent-Free Accommodation provided by employer: 0
+Concession in Rent provided by employer: 0
+Company Car provided for personal use: 0
+Free Utilities (electricity, water, etc.): 0
+Medical Facilities provided: 0
+Interest-Free Loans provided: 0
+Stock Options (ESOPs) taxable: 0
+Education Expenses paid by employer: 0
+
+Enter Termination Compensation received: 0
+Enter Retirement Compensation received: 0
+Enter Golden Handshake (VRS) amount: 0
+Enter Keyman Insurance Payout received: 0
+Enter Payments received before actual employment: 0
+Enter Payments received after resignation: 0
+
+Enter amount from foreign retirement account in notified country: 0
+Enter amount from foreign retirement account in non-notified country: 0
+Enter withdrawal amount from Section 89A country: 0
+
+
+Enter Rental Income: 0
+Enter Municipal Taxes: 0
+Enter Unrealised Rent: 0
+Enter Interest on Borrowed Capital (Self-Occupied Property): 0
+Enter Interest on Borrowed Capital (Let-Out Property): 0
+
+
+Enter Interest from Savings Bank Account: 0
+Enter Interest on Securities (Government Securities, Corporate Bonds, Deep Discount Bonds): 0
+Enter Other Interest Income (Interest other than 'Interest on securities'): 0
+Enter Income from Commission, Brokerage, Sale on lottery: 0
+Enter Dividend Income Taxable at Normal rates: 0
+Enter Winnings from Lotteries, Crossword Puzzles, Races, Card Games, etc.: 0
+Enter Family Pension: 0
+Enter Unexplained Income (Section 115BBE): 0
+Enter Royalty Income from Patents (Section 115BBF): 0
+Enter Income from Carbon Credit Trading (Section 115BBG): 0
+Enter Premature Withdrawal of PF (Before 5 years of service): 0
+
+80C (Max ₹1,50,000) - PPF, ELSS, Life Insurance, etc.: ₹0
+80CCC (Max ₹1,50,000) - Annuity Plans (LIC, etc.): ₹0
+80CCD(1) (Included in 80C Limit) - NPS Contribution: ₹0
+80CCD(1B) (Max ₹50,000) - Additional NPS Contribution: ₹0
+80CCD(2) (Employer NPS Contribution) - No Limit: ₹0
+80D (₹25K (<60yrs), ₹50K (Senior Citizens)) - Health Insurance: ₹0
+80DD (₹75K - ₹1.25L) - Dependent Disability: ₹0
+80DDB (₹40K - ₹1L) - Medical Treatment of Critical Illness: ₹0
+80E (No Limit) - Education Loan Interest: ₹0
+80EE (Max ₹50,000) - First Home Loan Interest: ₹0
+80EEA (Max ₹1.5L) - Affordable Housing Loan Interest: ₹0
+80EEB (Max ₹1.5L) - Electric Vehicle Loan Interest: ₹0
+80G - Donations (Enter Deductible Amount): ₹0
+80GG (Max ₹60,000) - Rent (If No HRA): ₹0
+80GGA - Donations to Scientific Research: ₹0
+80GGC - Donations to Political Parties: ₹0
+80TTA (Max ₹10,000) - Savings Account Interest: ₹0
+80TTB (Max ₹50,000) - Senior Citizen Interest (Savings & FD): ₹0
+80U (₹75K - ₹1.25L) - Self-Disability Deduction: ₹0
+
+Enter TDS paid(Tax Deducted at Source) :0
+
+Enter Advance Tax paid :
+June 15 :0
+
+September 15 :0
+
+December 15 :0
+
+March 15 :0
+
+Enter Month of ITR filing (1-12):0
+
+Enter the relief amount under section 89: 0

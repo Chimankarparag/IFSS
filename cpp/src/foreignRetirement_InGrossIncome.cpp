@@ -8,7 +8,7 @@ ForeignRetirement::ForeignRetirement()
 
 // Function to take user input
 void ForeignRetirement::inputRetirementDetails() {
-    cout << "Enter amount from foreign retirement account in notified country: ";
+    cout << "\nEnter amount from foreign retirement account in notified country: ";
     cin >> AmountFrom89ACountry;
 
     cout << "Enter amount from foreign retirement account in non-notified country: ";
