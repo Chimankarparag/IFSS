@@ -133,7 +133,7 @@ const TaxFilingDashboard = () => {
   const taxCategories: { id: FormDataCategory; title: string; description: string; icon: JSX.Element; formSteps: number }[] = [
     {
       id: "income",
-      title: "Income Details",
+      title: "Salary",
       description: "Salary, business & other income sources",
       icon: <Briefcase className="h-8 w-8 text-blue-500" />,
       formSteps: 3
@@ -161,14 +161,14 @@ const TaxFilingDashboard = () => {
     },
     {
       id: "education",
-      title: "Education",
+      title: "Other Sources",
       description: "Education expenses & loan interest",
       icon: <GraduationCap className="h-8 w-8 text-red-500" />,
       formSteps: 1
     },
     {
       id: "taxSaving",
-      title: "Tax Saving Investments",
+      title: "TDS & Advance Tax",
       description: "ELSS, NPS & other tax saving options",
       icon: <Leaf className="h-8 w-8 text-emerald-500" />,
       formSteps: 2
@@ -230,7 +230,7 @@ const TaxFilingDashboard = () => {
           <DialogHeader>
             <DialogTitle>Income Details</DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Fill in your income details from all sources
+              Fill in your Salary details
             </DialogDescription>
           </DialogHeader>
           
