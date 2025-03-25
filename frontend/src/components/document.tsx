@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
 const TaxFilingDashboard = () => {
   // State for handling active modal, selected category, and completion status
@@ -131,9 +133,12 @@ const TaxFilingDashboard = () => {
       progress: 0
     },
     taxSaving: {
-      elss: '',
-      nps: '',
-      sukanya: '',
+      TDSpaid:'',
+      advancetaxJune: '',
+      advancetaxSept: '',
+      advancetaxDec: '',
+      advancetaxMar: '',
+      monthOfItrFiling: '',
       completed: false,
       progress: 0
     }
@@ -816,6 +821,7 @@ const TaxFilingDashboard = () => {
 
             <TabsContent value="step-2">
               <div className="space-y-4">
+                <ScrollArea className="h-96 overflow-y-auto">
                 <div className="space-y-2">
                   <Label htmlFor="section80D">
                     Section 80D (&#8377;25K (&lt;60yrs), &#8377;50K (Senior Citizens)) - Health Insurance
@@ -829,6 +835,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80D', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80DD">
                     Section 80DD (₹75K - ₹1.25L) - Dependent Disability
@@ -842,6 +849,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80DD', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80DDB">
                     Section 80DDB (₹40K - ₹1L) - Medical Treatment of Critical Illness
@@ -855,6 +863,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80DDB', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80E">
                     Section 80E (No Limit) - Education Loan Interest
@@ -868,6 +877,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80E', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80EE">
                     Section 80EE (Max ₹50,000) - First Home Loan Interest
@@ -882,6 +892,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80EEA">
                     Section 80EEA (Max ₹1.5L) - Affordable Housing Loan Interest
@@ -896,6 +907,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80EEB">
                     Section 80EEB (Max ₹1.5L) - Electric Vehicle Loan Interest
@@ -910,6 +922,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80G">
                     Section 80G - Donations (Enter Deductible Amount)
@@ -923,6 +936,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80G', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80GG">
                     Section 80GG (Max ₹60,000) - Rent (If No HRA)
@@ -937,6 +951,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹60,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80GGA">
                     Section 80GGA - Donations to Scientific Research
@@ -950,6 +965,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80GGA', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80GGC">
                     Section 80GGC - Donations to Political Parties
@@ -963,6 +979,7 @@ const TaxFilingDashboard = () => {
                     onChange={(e) => updateFormData('deductions', 'section80GGC', e.target.value)}
                   />
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80TTA">
                     Section 80TTA (Max ₹10,000) - Savings Account Interest
@@ -977,6 +994,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹10,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80TTB">
                     Section 80TTB (Max ₹50,000) - Senior Citizen Interest (Savings & FD)
@@ -991,6 +1009,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
                 </div>
+                <Separator className="my-2" />
                 <div className="space-y-2">
                   <Label htmlFor="section80U">
                     Section 80U (₹75K - ₹1.25L) - Self-Disability Deduction
@@ -1005,6 +1024,7 @@ const TaxFilingDashboard = () => {
                   />
                   <p className="text-xs text-zinc-400 mt-1">Range: ₹75,000 - ₹1,25,000</p>
                 </div>
+                </ScrollArea>
               </div>
             </TabsContent>
           </Tabs>
@@ -1313,109 +1333,95 @@ const TaxFilingDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Tax Saving Modal */}
+      {/* Tax Payment Modal */}
       <Dialog open={activeModal === 'taxSaving'} onOpenChange={handleCloseModal}>
         <DialogContent className="bg-[#1e1e1e] border-[#333333] text-zinc-100 max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Tax Saving Investments</DialogTitle>
+            <DialogTitle>Tax Payments</DialogTitle>
             <DialogDescription className="text-zinc-400">
-              Enter your tax-saving investments
+              Enter your tax payments and filing details
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
-            <Tabs value={`step-${currentStep}`}>
-              <TabsList className="grid grid-cols-2 mb-6 bg-[#252525]">
-                <TabsTrigger 
-                  value="step-1"
-                  disabled={currentStep !== 1}
-                  className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
-                >
-                  ELSS & NPS
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="step-2"
-                  disabled={currentStep !== 2}
-                  className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
-                >
-                  Other Tax Savings
-                </TabsTrigger>
-              </TabsList>
+            <Tabs defaultValue="tax-payments">
+              <TabsContent value="tax-payments">
+                <div className="space-y-6">
+                  {/* TDS Paid */}
+                  <InputField
+                    label="TDS Paid (Tax Deducted at Source)"
+                    id="tds-paid"
+                    value={formData.taxSaving.TDSpaid}
+                    onChange={(value) => updateFormData('taxSaving', 'TDSpaid', value)}
+                  />
 
-              <TabsContent value="step-1">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="elss">ELSS Mutual Funds</Label>
-                    <Input
-                      id="elss"
-                      type="number"
-                      placeholder="Enter ELSS investment amount"
-                      className="bg-[#252525] border-[#333333] text-zinc-300"
-                      value={formData.taxSaving.elss}
-                      onChange={(e) => updateFormData('taxSaving', 'elss', e.target.value)}
-                    />
-                    <p className="text-xs text-zinc-400 mt-1">Eligible under Section 80C</p>
+                  {/* Advance Tax Payments */}
+                  <div className="space-y-4">
+                    <Label className="text-zinc-300 text-base">Advance Tax Paid</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <InputField
+                        label="June 15"
+                        id="advance-tax-june"
+                        value={formData.taxSaving.advancetaxJune}
+                        onChange={(value) => updateFormData('taxSaving', 'advancetaxJune', value)}
+                      />
+                      <InputField
+                        label="September 15"
+                        id="advance-tax-sept"
+                        value={formData.taxSaving.advancetaxSept}
+                        onChange={(value) => updateFormData('taxSaving', 'advancetaxSept', value)}
+                      />
+                      <InputField
+                        label="December 15"
+                        id="advance-tax-dec"
+                        value={formData.taxSaving.advancetaxDec}
+                        onChange={(value) => updateFormData('taxSaving', 'advancetaxDec', value)}
+                      />
+                      <InputField
+                        label="March 15"
+                        id="advance-tax-mar"
+                        value={formData.taxSaving.advancetaxMar}
+                        onChange={(value) => updateFormData('taxSaving', 'advancetaxMar', value)}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nps">National Pension Scheme (NPS)</Label>
-                    <Input
-                      id="nps"
-                      type="number"
-                      placeholder="Enter NPS contribution"
-                      className="bg-[#252525] border-[#333333] text-zinc-300"
-                      value={formData.taxSaving.nps}
-                      onChange={(e) => updateFormData('taxSaving', 'nps', e.target.value)}
-                    />
-                    <p className="text-xs text-zinc-400 mt-1">Additional deduction under Section 80CCD(1B)</p>
-                  </div>
-                </div>
-              </TabsContent>
 
-              <TabsContent value="step-2">
-                <div className="space-y-4">
+                  {/* ITR Filing Month */}
                   <div className="space-y-2">
-                    <Label htmlFor="sukanya">Sukanya Samriddhi Yojana</Label>
-                    <Input
-                      id="sukanya"
-                      type="number"
-                      placeholder="Enter SSY contribution"
-                      className="bg-[#252525] border-[#333333] text-zinc-300"
-                      value={formData.taxSaving.sukanya}
-                      onChange={(e) => updateFormData('taxSaving', 'sukanya', e.target.value)}
-                    />
-                    <p className="text-xs text-zinc-400 mt-1">Eligible under Section 80C</p>
+                    <Label htmlFor="filing-month" className="text-zinc-300">Month of ITR Filing</Label>
+                    <Select
+                      value={formData.taxSaving.monthOfItrFiling}
+                      onValueChange={(value) => updateFormData('taxSaving', 'monthOfItrFiling', value)}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333] text-zinc-300">
+                        <SelectValue placeholder="Select filing month" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#252525] border-[#333333] text-zinc-300">
+                        {Array.from({length: 12}, (_, i) => (
+                          <SelectItem key={i+1} value={(i+1).toString()}>
+                            {new Date(0, i).toLocaleString('default', {month: 'long'})}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
           
-          <DialogFooter className="flex justify-between">
-            <div>
-              {currentStep > 1 && (
-                <Button 
-                  variant="outline" 
-                  className="border-[#333333] hover:bg-[#252525] text-zinc-300"
-                  onClick={handlePreviousStep}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Previous
-                </Button>
-              )}
-            </div>
-            <div>
-              {currentStep < 2 ? (
-                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
-                  Next
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button className="bg-green-600 hover:bg-green-700" onClick={handleSubmit}>
-                  <Check className="mr-2 h-4 w-4" />
-                  Submit
-                </Button>
-              )}
-            </div>
+          <DialogFooter>
+            <Button 
+              className="bg-green-600 hover:bg-green-700" 
+              onClick={() => {
+                updateFormData('taxSaving', 'completed', true);
+                updateFormData('taxSaving', 'progress', 100);
+                handleCloseModal();
+              }}
+            >
+              <Check className="mr-2 h-4 w-4" />
+              Save Tax Details
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
