@@ -14,7 +14,7 @@ TaxCalculation::TaxCalculation(const GrossTotalIncome& grossTotalIncome, const E
 void TaxCalculation::inputIncomeDetails() {
     cout << "\nEnter TDS paid(Tax Deducted at Source) :";
     cin>>TDS;
-    cout << "\nEnter Advance Tax paid :\n June 15 :";
+    cout << "\nEnter Advance Tax paid :\nJune 15 :";
     cin>>advanceTaxJune15;
     cout << "\nSeptember 15 :";
     cin>>advanceTaxSeptember15;

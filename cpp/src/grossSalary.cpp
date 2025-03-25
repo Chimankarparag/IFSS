@@ -29,4 +29,5 @@ void GrossSalary::displayGrossSalary() const {
     cout << "Income from retirement benefit account in non-notified country u/s 89A: " << foreignRetirement->getAmountFromNon89ACountry() << endl;
     cout << "-----------------------\n";
     cout << "Total Gross Salary: " << calculateGrossSalary() << endl;
+    cout << "-----------------------\n\n";
 }

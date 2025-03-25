@@ -21,4 +21,5 @@ void IncomeUnderHeadSalaries::displayIncomeUnderHeadSalaries() const {
     cout << "Net Income Before Deductions: " << netIncome->calculateNetIncome() << endl;
     cout << "Total Deductions Under Section 16: " << deductions->calculateTotalDeductions() << endl;
     cout << "Income Under Head Salaries: " << calculateIncomeUnderHeadSalaries() << endl;
+    cout << "---------------------------\n\n";
 }
