@@ -117,8 +117,15 @@ void TaxDeductions::displayTotalDeduction() {
     cout << "80DDB (Critical Illness)   : ₹" << sec80DDB << "\n";
     cout << "80E   (Education Loan)     : ₹" << sec80E << "\n";
     cout << "80EE  (Home Loan)          : ₹" << sec80EE << "\n";
+    cout << "80EEA (Affordable Housing) : ₹" << sec80EEA << "\n";
+    cout << "80EEB (Electric Vehicle)   : ₹" << sec80EEB << "\n";
+    cout << "80G   (Donations)          : ₹" << sec80G << "\n";
+    cout << "80GG  (Rent)               : ₹" << sec80GG << "\n";
+    cout << "80GGA (Scientific Research): ₹" << sec80GGA << "\n";
+    cout << "80GGC (Political Parties)  : ₹" << sec80GGC << "\n";
     cout << "80TTA (Savings Interest)   : ₹" << sec80TTA << "\n";
     cout << "80TTB (Sr. Citizen Interest): ₹" << sec80TTB << "\n";
+    cout << "80U   (Disability)         : ₹" << sec80U << "\n";
     cout << "------------------------------------------------------\n";
     cout << "Total Eligible Deduction   : ₹" << totalDeduction << "\n";
     cout << "======================================================\n";

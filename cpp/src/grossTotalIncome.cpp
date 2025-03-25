@@ -20,4 +20,5 @@ void GrossTotalIncome::displayGrossTotalIncome() const {
     cout << "Income Under House Property: " << houseProperty.calculateIncomeUnderHouseProperty() << endl;
     cout << "Other Income: " << otherIncome.calculateTotalOtherIncome() << endl;
     cout << "Gross Total Income: " << calculateGrossTotalIncome() << endl;
+    cout << "-------------------\n\n";
 }
