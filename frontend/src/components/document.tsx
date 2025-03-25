@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { number } from 'zod';
 
 const TaxFilingDashboard = () => {
   // State for handling active modal, selected category, and completion status
@@ -143,6 +144,31 @@ const TaxFilingDashboard = () => {
       progress: 0
     }
   });
+  const [displayOutput, setDisplayOutput] = useState({
+    salary: number,
+    deductions: number,
+    housing: number,
+    investments: number,
+    taxPaid: number,
+    otherSources: number,
+  });
+
+  const calculateSalary = async () => {
+    try {
+      // const response = await fetch('/api/blah/blah',{mehtod: 'GET' }, body: JSON.Parse(formData.Salary))
+      // 
+    } catch (error) {
+      
+    }
+  }
+
+  const fetchData = async () => {
+    try {
+      // 
+    } catch (error) {
+      
+    }
+  }
 
   // Function to update form data
   const updateFormData = (category: keyof typeof formData, field: string, value: string | number |boolean) => {
@@ -272,11 +298,9 @@ const TaxFilingDashboard = () => {
               <div className="flex items-center justify-between">
                 {category.icon}
                 <span className={`text-white text-xs px-2 py-1 rounded ${
-                  formData[category.id].completed ? 'bg-green-600' : 
-                  formData[category.id].progress > 0 ? 'bg-amber-600' : 'bg-slate-600'
+                  formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-amber-600'
                 }`}>
-                  {formData[category.id].completed ? 'Completed' : 
-                   formData[category.id].progress > 0 ? 'In Progress' : 'Not Started'}
+                  {formData[category.id].progress === 100 ? 'Completed' : 'Pending'}
                 </span>
               </div>
               <CardTitle className="text-zinc-100 text-lg">{category.title}</CardTitle>
@@ -292,7 +316,9 @@ const TaxFilingDashboard = () => {
                   </div>
                   <div className="w-full bg-[#333333] rounded-full h-2 mt-1">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                      className={`h-2 rounded-full ${
+                        formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-blue-600'
+                      }`} 
                       style={{ width: `${formData[category.id].progress}%` }}
                     ></div>
                   </div>
