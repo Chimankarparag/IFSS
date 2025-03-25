@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,17 @@ import {
   ExternalLink,
   CheckCircle,
   Menu,
-  X
+  X,
+  Smartphone,
+  CreditCard,
+  DollarSign,
+  BarChart,
+  Lock,
+  AlertTriangle,
+  Wallet,
+  Mic,
+  PieChart,
+  Brain
 } from 'lucide-react';
 import {
   Card,
@@ -37,6 +46,15 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import CARegistrationForm from './auth/ca-register/page';
 
 // News items data
 const newsItems = [
@@ -45,7 +63,7 @@ const newsItems = [
     title: "Income tax deadline: Only 1 day left to pay last instalment of advance tax",
     description: "The final instalment of advance tax for FY 2024-25 must be paid by March 15, 2025.",
     date: "March 15, 2025",
-    urgent: true
+    urgent: false
   },
   {
     id: 2,
@@ -60,546 +78,539 @@ const newsItems = [
     description: "Offices deducting TDS/TCS for February 2025 must submit Form 24G by this date.",
     date: "March 13, 2025",
     urgent: false
+  },
+  {
+    id: 4,
+    title: "IT Department launches mobile app for viewing and correcting AIS",
+    description: "New mobile app allows taxpayers to view and correct discrepancies in Annual Information Statement (AIS).",
+    date: "March 22, 2023",
+    urgent: false
+  }
+];
+
+// Features data
+const featuresData = [
+  { 
+    icon: FileText, 
+    title: "Document Management", 
+    description: "Securely store and organize financial documents with end-to-end encryption."
+  },
+  { 
+    icon: Users, 
+    title: "Professional Network", 
+    description: "Connect with verified Chartered Accountants for expert tax guidance."
+  },
+  { 
+    icon: Calendar, 
+    title: "Compliance Tracking", 
+    description: "Never miss a deadline with automated tax and filing reminders."
+  },
+  { 
+    icon: Smartphone, 
+    title: "Mobile App Access", 
+    description: "View and correct your Annual Information Statement (AIS) on the go."
+  },
+  { 
+    icon: Bell, 
+    title: "Alerts & Notifications", 
+    description: "Receive timely alerts for transactions, account activities, and security updates."
+  },
+  { 
+    icon: Lock, 
+    title: "Enhanced Security", 
+    description: "Biometric authentication, two-factor verification, and data encryption."
+  }
+];
+
+// Banking features data
+const bankingFeatures = [
+  {
+    icon: CreditCard,
+    title: "Bill Payments",
+    description: "Manage and pay recurring bills directly from the app with reminders and payment history tracking."
+  },
+  {
+    icon: Wallet,
+    title: "Digital Wallets",
+    description: "Store payment information securely and make swift transactions within the app."
+  },
+  {
+    icon: DollarSign,
+    title: "P2P Lending Integration",
+    description: "Connect with peer-to-peer lending networks to borrow from or lend to other users directly."
+  },
+  {
+    icon: PieChart,
+    title: "Personal Financial Management",
+    description: "Analyze spending patterns, get personalized financial advice, and improve financial habits."
+  },
+  {
+    icon: Brain,
+    title: "AI-Powered Insights",
+    description: "Get personalized financial insights and automated fraud detection powered by artificial intelligence."
+  },
+  {
+    icon: Mic,
+    title: "Voice Assistant",
+    description: "Perform transactions and access account information hands-free with voice commands."
   }
 ];
 
 export default function HomePage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("individual");
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col dark:bg-zinc-950">
       {/* Navigation */}
-      <header className="border-b border-gray-800 sticky top-0 z-40 w-full bg-black/90 backdrop-blur supports-[backdrop-filter]:bg-black/60">
-        <div className="container flex h-16 items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xl text-white font-bold bg-clip-text bg-gradient-to-r from-primary to-primary/70">IFSS</span>
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center space-x-4">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="text-lg font-semibold">IFSS</span>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#about" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">About</a>
-            <a href="#features" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
-            <a href="#news" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Tax Updates</a>
-            <a href="#ca-portal" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">CA Portal</a>
-            <a href="#faq" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">FAQ</a>
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">About</a>
+            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</a>
+            <a href="#news" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Tax Updates</a>
+            <a href="#ca-portal" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">CA Portal</a>
+            <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">FAQ</a>
           </nav>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex gap-2">
-              <Button
-                onClick={() => router.push('/auth/login')}
-                variant="ghost"
-                className="text-sm font-medium text-gray-400 hover:text-black"
-              >
+          <div className="flex items-center space-x-2">
+            <div className="hidden md:flex space-x-2">
+              <Button variant="ghost" onClick={() => router.push('/auth/login')}>
                 Login
               </Button>
-              <Button
-                onClick={() => router.push('/auth/signup')}
-                className="text-sm font-medium bg-primary hover:bg-primary/90"
-              >
+              <Button onClick={() => router.push('/auth/signup')} className="bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
                 Sign Up
               </Button>
             </div>
 
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-gray-400">
+                <Button variant="outline" size="icon">
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-black border-gray-800">
-                <div className="flex justify-between items-center p-4 mb-8">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold bg-clip-text text-white bg-gradient-to-r from-primary to-primary/70">IFSS</span>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                    <X className="h-5 w-5 text-white" />
-                  </Button>
-                </div>
-                <nav className="flex flex-col gap-4 px-4">
-                  <a
-                    href="#about"
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    About
-                  </a>
-                  <a
-                    href="#features"
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Features
-                  </a>
-                  <a
-                    href="#news"
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Tax Updates
-                  </a>
-                  <a
-                    href="#ca-portal"
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    CA Portal
-                  </a>
-                  <a
-                    href="#faq"
-                    className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    FAQ
-                  </a>
-                  <div className="h-px bg-gray-800 my-4" />
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => {
-                        router.push('/auth/login');
-                        setMobileMenuOpen(false);
-                      }}
-
-                      className="w-full justify-start bg-primary hover:bg-primary/90"
+              <SheetContent>
+                <div className="grid gap-4 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-6 w-6 text-primary" />
+                      <span className="text-lg font-semibold">IFSS</span>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setMobileMenuOpen(false)}
                     >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                  <Separator />
+                  <nav className="grid gap-4">
+                    {['About', 'Features', 'Tax Updates', 'CA Portal', 'FAQ'].map((item) => (
+                      <a 
+                        key={item} 
+                        href={`#${item.toLowerCase().replace(' ', '-')}`}
+                        className="text-sm font-medium hover:text-primary"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item}
+                      </a>
+                    ))}
+                  </nav>
+                  <Separator />
+                  <div className="grid gap-2">
+                    <Button variant="outline" onClick={() => router.push('/auth/login')}>
                       Login
                     </Button>
-                    <Button
-                      onClick={() => {
-                        router.push('/auth/signup');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full justify-start bg-primary hover:bg-primary/90"
-                    >
+                    <Button onClick={() => router.push('/auth/signup')} className="bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
                       Sign Up
                     </Button>
                   </div>
-                </nav>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
         </div>
       </header>
 
-      {/* About Section */}
-      <section id="about" className="container px-4 py-16 md:py-24">
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">About IFSS</h2>
-            <p className="text-gray-400 mb-6 leading-7">
-              The Integrated Financial Security System (IFSS) is designed to streamline tax filing processes, connect taxpayers with certified professionals, and ensure secure management of financial documents.
+      {/* Main Content */}
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 space-y-12">
+          <div className="text-center space-y-6 md:space-y-8">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent pb-1">
+              Secure Your Financial Future
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Integrated Financial Security System: Streamline tax filing, connect with professionals, and manage your financial documents with ease.
             </p>
-            <p className="text-gray-400 mb-6 leading-7">
-              Our platform provides end-to-end encryption for all your sensitive financial data, while making it easy to collaborate with tax professionals and stay compliant with regulations.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="outline" className="gap-2 bg-primary text-gray-400 hover:text-black ">
-                Learn More <ArrowRight className="h-4 w-4" />
-              </Button>
+            <div className="flex justify-center gap-4">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">Get Started</Button>
+              <Button variant="outline" size="lg">Learn More</Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-black/40 border border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg text-white">Security</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-400">
-                  End-to-end encryption and multi-factor authentication for all your data.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/40 border border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg text-white">Compliance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-400">
-                  Stay updated with tax regulations and never miss a deadline.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/40 border border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg text-white">Expertise</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-400">
-                  Connect with verified CAs for professional guidance.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="bg-black/40 border border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg text-white">Efficiency</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-400">
-                  Streamlined workflows to save time and reduce errors.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-      {/* Features Section */}
-      <section id="features" className="bg-gradient-to-b from-black to-gray-900 py-16 md:py-24">
-        <div className="container px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Key Features</h2>
-            <p className="text-gray-400 max-w-[750px] mx-auto">
-              IFSS combines document management, professional assistance, and secure authentication to create a seamless financial management experience.
-            </p>
+
+          {/* User Type Tabs */}
+          <div className="max-w-3xl mx-auto">
+            <Tabs defaultValue="individual" className="w-full" onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="individual">Individual</TabsTrigger>
+                <TabsTrigger value="ca">Chartered Accountant</TabsTrigger>
+                <TabsTrigger value="business">Business</TabsTrigger>
+              </TabsList>
+              <TabsContent value="individual" className="mt-6">
+                <Card className="border-border dark:border-zinc-800 dark:bg-zinc-900/50">
+                  <CardHeader>
+                    <CardTitle>For Individual Taxpayers</CardTitle>
+                    <CardDescription>
+                      Simplify your tax filing process and manage your financial documents securely.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Easy ITR filing with pre-filled data</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Secure document storage</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Tax deadline reminders</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Mobile app for on-the-go access</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
+                      Register as Individual
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+              <TabsContent value="ca" className="mt-6">
+                <Card className="border-border dark:border-zinc-800 dark:bg-zinc-900/50">
+                  <CardHeader>
+                    <CardTitle>For Chartered Accountants</CardTitle>
+                    <CardDescription>
+                      Streamline your practice with our specialized CA tools and client management features.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Bulk client management</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Multiple team member logins</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Pre and post-filing summaries</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Auto-populated forms</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
+                      Register as CA
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+              <TabsContent value="business" className="mt-6">
+                <Card className="border-border dark:border-zinc-800 dark:bg-zinc-900/50">
+                  <CardHeader>
+                    <CardTitle>For Businesses</CardTitle>
+                    <CardDescription>
+                      Comprehensive financial management tools for your business needs.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Business expense tracking</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Financial reporting</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Tax compliance tools</span>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm">Multi-user access</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
+                      Register as Business
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            <Card className="bg-black/40 border border-gray-800 hover:border-gray-700 transition-all">
-              <CardHeader>
-                <FileText className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle className="text-white">Document Management</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Securely store and organize all your financial documents
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">End-to-end encrypted document storage</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Intelligent categorization and tagging</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Secure sharing with professionals</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Secure sharing with authorized professionals</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-black/40 border border-gray-800 hover:border-gray-700 transition-all">
-              <CardHeader>
-                <Users className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle className="text-white">Professional Assistance</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Connect with certified CAs for expert guidance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Network of verified chartered accountants</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Personalized tax filing assistance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Secure messaging and consultation</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-black/40 border border-gray-800 hover:border-gray-700 transition-all">
-              <CardHeader>
-                <Calendar className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle className="text-white">Tax Compliance</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Stay on top of deadlines and requirements
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Automated tax deadline reminders</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Compliance status monitoring</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-primary" />
-                    <span className="text-gray-300">Historical filing records and analytics</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+          {/* Features Overview */}
+          <div id="features" className="pt-8">
+            <h2 className="text-3xl font-bold text-center mb-10">Key Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+              {featuresData.map(({ icon: Icon, title, description }) => (
+                <Card key={title} className="border-border dark:border-zinc-800 dark:bg-zinc-900/50 hover:dark:border-primary/40 hover:shadow-md hover:border-primary/50 transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <Icon className="h-8 w-8 text-primary mb-3" />
+                    <CardTitle className="text-xl">{title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-      {/* Latest News Section */}
-      <section id="news" className="container px-4 py-16 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Latest Tax Updates</h2>
-            <p className="text-gray-400">Stay informed with the latest news from the Income Tax Department</p>
-          </div>
-          <Button variant="outline" className="shrink-0 border-gray-800 bg-primary text-gray-400 hover:text-black hover:border-gray-700">
-            View All <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+        </section>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {newsItems.map((item) => (
-            <Card key={item.id} className="bg-black/40 border border-gray-800 hover:border-gray-700 transition-all">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-xl text-white">{item.title}</CardTitle>
-                  {item.urgent && (
-                    <Badge variant="destructive" className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border-none">Urgent</Badge>
-                  )}
-                </div>
-                <CardDescription className="text-gray-500">{item.date}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-400">{item.description}</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" className="p-0 text-white bg-primary/60 hover:text-primary/90">
-                  Read More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </section>
-      {/* CA Portal Section */}
-      <section id="ca-portal" className="bg-gradient-to-b from-gray-900 to-black py-16 md:py-24">
-        <div className="container px-4">
-          <div className="grid gap-12 lg:grid-cols-2 items-center">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">For Chartered Accountants</h2>
-              <p className="text-gray-400 mb-6 leading-7">
-                IFSS provides a platform for Chartered Accountants to expand their client base, streamline their practice, and offer digital services to taxpayers nationwide.
+        {/* CA Registration Section */}
+        <section id="ca-portal" className="bg-muted/30 dark:bg-zinc-900/30 py-12 md:py-20">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">Chartered Accountant Portal</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Streamline your practice with our specialized tools for CAs. Manage clients, file returns, and grow your business.
               </p>
-
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <div className="mr-3 mt-1">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                  </div>
-                  <span className="text-gray-300">Access a growing pool of clients seeking tax assistance</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="mr-3 mt-1">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                  </div>
-                  <span className="text-gray-300">Utilize our secure platform for document exchange and client communication</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="mr-3 mt-1">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                  </div>
-                  <span className="text-gray-300">Expand your practice beyond geographical limitations</span>
-                </li>
-              </ul>
-
-              <Button
-                onClick={() => router.push('/ca/register')}
-                className="gap-2 bg-primary hover:bg-primary/90"
-              >
-                Apply as a CA <ExternalLink className="h-4 w-4" />
-              </Button>
             </div>
-
-            <Card className="bg-black/60 border border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-white">Join Our Network of Tax Professionals</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Complete the application to become a verified CA on our platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            
+            <div className="grid md:grid-cols-2 gap-8 items-center mt-12">
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold">CA Registration Process</h3>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-white">Benefits for CAs</h4>
-                      <ul className="list-disc pl-5 space-y-2 text-sm text-gray-400">
-                        <li>Increased client acquisition</li>
-                        <li>Digital practice management</li>
-                        <li>Secure client communication</li>
-                        <li>Automated document collection</li>
-                        <li>Streamlined workflow</li>
-                      </ul>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary text-primary font-medium">1</div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Verify Credentials</h4>
+                      <p className="text-sm text-muted-foreground">Submit your CA registration number and supporting documents for verification.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary text-primary font-medium">2</div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Complete Profile</h4>
+                      <p className="text-sm text-muted-foreground">Add your professional details, areas of expertise, and practice information.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary text-primary font-medium">3</div>
+                    <div className="space-y-1">
+                      <h4 className="font-medium">Start Using Platform</h4>
+                      <p className="text-sm text-muted-foreground">Begin managing clients, filing returns, and growing your practice.</p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full bg-primary hover:bg-primary/90">
-                  Register Now
+                <Button className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
+                  Register as CA <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-              </CardFooter>
-            </Card>
+              </div>
+              <CARegistrationForm/>
+            </div>
           </div>
-        </div>
-      </section>
-      {/* FAQ Section */}
-      <section id="faq" className="container px-4 py-16 md:py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Frequently Asked Questions</h2>
-          <p className="text-gray-400 max-w-[750px] mx-auto">
-            Find answers to common questions about IFSS and our services
-          </p>
-        </div>
+        </section>
 
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1" className="border-gray-800">
-              <AccordionTrigger className="text-white hover:text-gray-200">How secure is my financial data on IFSS?</AccordionTrigger>
-              <AccordionContent className="text-gray-400">
-                IFSS employs end-to-end encryption for all data storage and transmission. We use industry-standard security protocols and regular security audits to ensure your financial information remains protected. Additionally, our platform implements multi-factor authentication and role-based access controls.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2" className="border-gray-800">
-              <AccordionTrigger className="text-white hover:text-gray-200">How do I connect with a CA on the platform?</AccordionTrigger>
-              <AccordionContent className="text-gray-400">
-                After creating your account, you can browse our network of verified CAs, view their profiles, specializations, and ratings. You can then send connection requests to CAs who match your requirements. Once a CA accepts your request, you can securely share documents and communicate through our platform.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3" className="border-gray-800">
-              <AccordionTrigger className="text-white hover:text-gray-200">What types of documents can I store on IFSS?</AccordionTrigger>
-              <AccordionContent className="text-gray-400">
-                IFSS supports all common document formats including PDFs, images (JPG, PNG), spreadsheets (Excel, CSV), and text documents (Word, TXT). You can store tax returns, financial statements, receipts, invoices, and any other documents relevant to your financial and tax management.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-4" className="border-gray-800">
-              <AccordionTrigger className="text-white hover:text-gray-200">How does the tax deadline reminder system work?</AccordionTrigger>
-              <AccordionContent className="text-gray-400">
-                Our system automatically tracks important tax deadlines based on your profile and tax category. You'll receive notifications via email and in-app alerts before upcoming deadlines. You can also customize reminder settings to specify how far in advance you'd like to be notified.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-5" className="border-gray-800">
-              <AccordionTrigger className="text-white hover:text-gray-200">What are the requirements to register as a CA?</AccordionTrigger>
-              <AccordionContent className="text-gray-400">
-                To register as a CA on our platform, you must have a valid CA certification from ICAI, provide professional references, and complete our verification process. We'll verify your credentials, professional standing, and conduct background checks to ensure the quality of professionals on our platform.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </section>
+        {/* News Section */}
+        <section id="news" className="py-12 md:py-20">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">Latest Tax Updates</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Stay informed with the latest tax news, deadlines, and regulatory changes.
+              </p>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {newsItems.map((item) => (
+                <Card key={item.id} className="border-border dark:border-zinc-800 dark:bg-zinc-900/50 hover:shadow-md transition-all duration-300">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">{item.title}</CardTitle>
+                      {item.urgent && <Badge variant="destructive">Urgent</Badge>}
+                    </div>
+                    <CardDescription>{item.date}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button variant="link" className="p-0">
+                      Read more <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="flex justify-center mt-8">
+              <Button variant="outline">
+                View All Tax Updates <ExternalLink className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </section>
+        
+        {/* Banking Features Section */}
+        <section className="bg-muted/30 dark:bg-zinc-900/30 py-12 md:py-20">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">Integrated Banking Features</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Manage all your financial needs in one secure platform with our integrated banking features.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+              {bankingFeatures.map(({ icon: Icon, title, description }) => (
+                <Card key={title} className="border-border dark:border-zinc-800 dark:bg-zinc-900/50 hover:shadow-md hover:border-primary/50 transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <Icon className="h-8 w-8 text-primary mb-3" />
+                    <CardTitle className="text-xl">{title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-b from-black to-gray-900 py-16 md:py-24">
-        <div className="container px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold tracking-tight scroll-m-20 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Ready to Secure Your Financial Future?</h2>
-            <p className="text-gray-400 mb-8">
-              Join thousands of users who trust IFSS for their financial document management and tax filing needs.
+        {/* FAQ Section */}
+        <section id="faq" className="py-12 md:py-20">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+            <Accordion type="single" collapsible className="w-full max-w-3xl mx-auto">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>How secure is my financial data?</AccordionTrigger>
+                <AccordionContent>
+                  Your financial data is protected with state-of-the-art encryption and security measures. We use end-to-end encryption to ensure that only you and your authorized accountant can access your sensitive information.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>Can I connect with my existing CA?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, you can invite your existing Chartered Accountant to join the platform. If they're already on our network, you can easily connect and share necessary documents securely.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>How does the tax filing reminder system work?</AccordionTrigger>
+                <AccordionContent>
+                  Our system automatically tracks important tax deadlines and sends you timely reminders via email and push notifications. You can customize the frequency and type of reminders in your account settings.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-4">
+                <AccordionTrigger>What documents can I store on the platform?</AccordionTrigger>
+                <AccordionContent>
+                  You can store all types of financial documents including income statements, investment proofs, property documents, tax returns, and more. Our platform supports various file formats including PDF, JPG, PNG, and Excel files.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-5">
+                <AccordionTrigger>Is there a mobile app available?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, we offer mobile apps for both iOS and Android platforms. The mobile app allows you to access your documents, receive notifications, and even scan and upload documents directly from your phone.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-6">
+                <AccordionTrigger>How do I get started with the platform?</AccordionTrigger>
+                <AccordionContent>
+                  Getting started is simple. Just sign up for an account, verify your email, and complete your profile. You can then start uploading documents, connecting with professionals, and using our tax filing tools right away.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="bg-primary/5 dark:bg-primary/10 py-16 md:py-24">
+          <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold">Ready to secure your financial future?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Join thousands of individuals and businesses who trust our platform for their financial security needs.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => router.push('/auth/signup')}
-                size="lg"
-                className="px-8 bg-primary hover:bg-primary/90"
-              >
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground dark:hover:bg-primary/80">
                 Create Free Account
               </Button>
-              <Button
-                onClick={() => router.push('/demo')}
-                variant="outline"
-                size="lg"
-                className="px-8 border-gray-800 text-gray-900 hover:text-black hover:border-gray-700"
-              >
-                Request Demo
+              <Button variant="outline" size="lg">
+                Schedule a Demo
               </Button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* Footer */}
-
-      <footer className="border-t border-gray-800 py-12 md:py-16 bg-black">
-        <div className="container px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-            <div className="col-span-2 lg:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
+      <footer className="border-t border-border bg-muted/50 dark:bg-zinc-900/50">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
                 <Shield className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">IFSS</span>
+                <span className="text-lg font-semibold">IFSS</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground">
                 Integrated Financial Security System - Secure document management and tax filing platform.
               </p>
-              <div className="flex gap-4">
-                <Button variant="ghost" size="icon" className="hover:bg-gray-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                  <span className="sr-only">Facebook</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
-                  <span className="sr-only">Twitter</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
-                  <span className="sr-only">Instagram</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                  <span className="sr-only">LinkedIn</span>
-                </Button>
-              </div>
             </div>
             <div>
-              <h3 className="font-medium text-sm mb-4 text-gray-300">Platform</h3>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Features</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Security</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Pricing</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">FAQ</a></li>
+              <h3 className="font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">About Us</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Features</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Pricing</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium text-sm mb-4 text-gray-300">Resources</h3>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Tax Guides</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Documentation</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Blog</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Webinars</a></li>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Cookie Policy</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium text-sm mb-4 text-gray-300">Company</h3>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">About Us</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Careers</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Contact</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Partners</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-medium text-sm mb-4 text-gray-300">Legal</h3>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Cookie Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-gray-300 transition-colors">Compliance</a></li>
+              <h3 className="font-semibold mb-4">Connect</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Twitter</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">LinkedIn</a></li>
+                <li><a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Facebook</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} IFSS. All rights reserved.
-            </p>
-            <div className="flex gap-4 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-gray-300 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-gray-300 transition-colors">Terms</a>
-              <a href="#" className="hover:text-gray-300 transition-colors">Cookies</a>
-            </div>
+          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+            © 2025 IFSS. All rights reserved.
           </div>
         </div>
       </footer>
     </div>
   );
 }
+

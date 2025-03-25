@@ -23,6 +23,7 @@ import { format } from "date-fns"; // Format date
 import { CalendarIcon } from "lucide-react"; // Import Calendar Icon
 import { cn } from "@/lib/utils"; // Utility function for classnames
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@radix-ui/react-select';
 
 const formSchema = z.object({
     pan: z.string(),
@@ -51,6 +52,8 @@ export default function SignupPage() {
     const pan = sessionStorage.getItem('signup_pan');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 30);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
 
     // ✅ Define `useForm` inside the component
@@ -78,7 +81,7 @@ export default function SignupPage() {
                 // Redirect to email verification page or handle verification logic
                 setSuccess('Fetched details successfully! Redirecting...');
                 setTimeout(() => {
-                router.push('/auth/signup/account');
+                    router.push('/auth/signup/account');
                 }, 1000);
             } else {
                 console.error("Registration failed:", response.data.message);
@@ -94,6 +97,18 @@ export default function SignupPage() {
             console.error("Error during registration:", error);
         }
     };
+
+    // Generate years for the dropdown (from 1900 to current year)
+    const years = Array.from(
+        { length: new Date().getFullYear() - 1899 },
+        (_, i) => new Date().getFullYear() - i
+    );
+
+    // Generate months for the dropdown
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
 
     return (
@@ -169,30 +184,96 @@ export default function SignupPage() {
                                     control={form.control}
                                     name="dateOfBirth"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-col md:w-1/3">
+                                        <FormItem className='flex flex-col'>
                                             <FormLabel>Date of Birth<span className="text-red-500">*</span></FormLabel>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <button
-                                                            type="button"
+                                                        <Button
+                                                            variant="outline"
                                                             className={cn(
-                                                                "flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm",
+                                                                "w-full pl-3 text-left font-normal border-gray-300 dark:border-zinc-700",
                                                                 !field.value && "text-muted-foreground"
                                                             )}
                                                         >
-                                                            {field.value ? format(field.value, "dd-MMM-yyyy") : "Pick a date"}
-                                                            <CalendarIcon className="h-4 w-4 opacity-50" />
-                                                        </button>
+                                                            {field.value ? (
+                                                                format(field.value, "dd MMM yyyy")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent align="start" className="w-auto p-0">
+                                                <PopoverContent className="w-auto p-0 max-w-[95vw] sm:max-w-none" align="start">
+                                                    <div className="p-3 border-b border-border/50 dark:border-zinc-800 flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center">
+                                                        <Select
+                                                            value={selectedMonth.toString()}
+                                                            onValueChange={(value) => setSelectedMonth(parseInt(value))}
+                                                        >
+                                                            <SelectTrigger className="w-full sm:w-[120px] border-none focus:ring-0">
+                                                                <SelectValue placeholder="Month" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {months.map((month, index) => (
+                                                                    <SelectItem key={month} value={index.toString()}>
+                                                                        {month}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        <Select
+                                                            value={selectedYear.toString()}
+                                                            onValueChange={(value) => setSelectedYear(parseInt(value))}
+                                                        >
+                                                            <SelectTrigger className="w-full sm:w-[100px] border-none focus:ring-0">
+                                                                <SelectValue placeholder="Year" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="max-h-[200px]">
+                                                                {years.map((year) => (
+                                                                    <SelectItem key={year} value={year.toString()}>
+                                                                        {year}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        disabled={(date) => date > new Date()} // Disable future dates
+                                                        onSelect={(date) => {
+                                                            field.onChange(date);
+                                                            if (date) {
+                                                                setSelectedYear(date.getFullYear());
+                                                                setSelectedMonth(date.getMonth());
+                                                            }
+                                                        }}
+                                                        month={new Date(selectedYear, selectedMonth)}
+                                                        onMonthChange={(date) => {
+                                                            setSelectedMonth(date.getMonth());
+                                                            setSelectedYear(date.getFullYear());
+                                                        }}
+                                                        disabled={(date) =>
+                                                            date > new Date() ||
+                                                            date < new Date("1900-01-01")
+                                                        }
                                                         initialFocus
+                                                        className="bg-background"
+                                                        classNames={{
+                                                            root: "bg-background border-none",
+                                                            head: "text-foreground",
+                                                            nav: "space-x-1",
+                                                            nav_button: "border-none bg-primary/10 text-foreground hover:bg-primary/20",
+                                                            caption: "flex justify-center pt-1 relative items-center",
+                                                            caption_label: "text-foreground text-sm font-medium",
+                                                            cell: "text-foreground hover:bg-primary/10 rounded-md",
+                                                            day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                                                            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                                                            day_today: "bg-accent text-accent-foreground",
+                                                            day_outside: "text-muted-foreground opacity-50",
+                                                            day_disabled: "text-muted-foreground opacity-50",
+                                                        }}
                                                     />
                                                 </PopoverContent>
                                             </Popover>
@@ -214,7 +295,7 @@ export default function SignupPage() {
                                                         <FormLabel htmlFor="male">Male</FormLabel>
                                                     </FormItem>
                                                     <FormItem className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="Female" id="female"  />
+                                                        <RadioGroupItem value="Female" id="female" />
                                                         <FormLabel htmlFor="female">Female</FormLabel>
                                                     </FormItem>
                                                     <FormItem className="flex items-center space-x-2">
