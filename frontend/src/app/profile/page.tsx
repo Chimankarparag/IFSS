@@ -392,7 +392,7 @@ export default function DashboardPage() {
                 )}
 
                 {activeSection === 'documents' && (
-                    <TaxFilingDashboard/>
+                    <TaxFilingDashboard user={user} />
                 )}
 
                 {activeSection === 'account' && (

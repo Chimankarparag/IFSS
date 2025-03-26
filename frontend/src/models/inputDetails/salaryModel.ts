@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const incomeSchema = new mongoose.Schema({
     // Basic Salary Details
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     basicSalary: {
         type: Number,
         required: true,

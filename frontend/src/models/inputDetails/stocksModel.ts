@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const investmentsSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     stocks: {
         type: Number,
         required: true,
@@ -29,6 +34,6 @@ const investmentsSchema = new mongoose.Schema({
     },
 });
 
-const Investments = mongoose.models.Investments || mongoose.model("Investments", investmentsSchema) ;
+const Investments = mongoose.models.Investments || mongoose.model("Investments", investmentsSchema);
 
 export default Investments;

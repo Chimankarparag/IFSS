@@ -11,8 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { number } from 'zod';
+import Deductions from '@/models/inputDetails/deductionsModel';
+import toast from 'react-hot-toast';
 
-const TaxFilingDashboard = () => {
+const TaxFilingDashboard = (params: any) => {
+
+  const data = params.user;
   // State for handling active modal, selected category, and completion status
   const [activeModal, setActiveModal] = useState<keyof typeof formData | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -43,7 +47,7 @@ const TaxFilingDashboard = () => {
       totalPension: '',
       commutedPension: '',
       vrsCompensation: '',
-      
+
       // Perquisites
       rentFreeAccommodation: '',
       concessionInRent: '',
@@ -53,7 +57,7 @@ const TaxFilingDashboard = () => {
       interestFreeLoans: '',
       esops: '',
       educationExpenses: '',
-      
+
       // Profits in Lieu
       terminationCompensation: '',
       retirementCompensation: '',
@@ -61,12 +65,12 @@ const TaxFilingDashboard = () => {
       keymanInsurance: '',
       preEmploymentPayments: '',
       postResignationPayments: '',
-      
+
       // Foreign Retirement
       foreignRetirementNotified: '',
       foreignRetirementNonNotified: '',
       section89AWithdrawal: '',
-      
+
       // Additional Details
       isGovernmentEmployee: false,
       employeeAge: '',
@@ -74,7 +78,7 @@ const TaxFilingDashboard = () => {
       unusedLeaves: '',
       isRetiring: false,
       underOldTaxRegime: false,
-      
+
       completed: false,
       progress: 0
     },
@@ -102,13 +106,13 @@ const TaxFilingDashboard = () => {
       progress: 0
     },
     housing: {
-        interestSelfOccupied: '',    // For self-occupied property
-        rentalIncome: '',           // For let-out property
-        municipalTaxes: '',
-        unrealisedRent: '',
-        interestLetOut: '',          // For let-out property
-        completed: false,
-        progress: 0
+      interestSelfOccupied: '',    // For self-occupied property
+      rentalIncome: '',           // For let-out property
+      municipalTaxes: '',
+      unrealisedRent: '',
+      interestLetOut: '',          // For let-out property
+      completed: false,
+      progress: 0
     },
     investments: {
       stocks: '',
@@ -134,7 +138,7 @@ const TaxFilingDashboard = () => {
       progress: 0
     },
     taxSaving: {
-      TDSpaid:'',
+      TDSpaid: '',
       advancetaxJune: '',
       advancetaxSept: '',
       advancetaxDec: '',
@@ -153,27 +157,351 @@ const TaxFilingDashboard = () => {
     otherSources: number,
   });
 
-  const calculateSalary = async () => {
+  const setSalary = async () => {
     try {
-      // const response = await fetch('/api/blah/blah',{mehtod: 'GET' }, body: JSON.Parse(formData.Salary))
-      // 
+      const response = await fetch('/api/inputDetails/salary', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          income: formData.income,
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save salary details');
+      }
+
+      const result = await response.json();
+
+      setActiveModal(null);
     } catch (error) {
-      
+      toast.error(`Error saving salary details: ${String(error)}`);
+    }
+  };
+
+  const fetchSalary = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/salary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch salary details');
+      }
+
+      const result = await response.json();
+
+      setFormData(prev => ({
+        ...prev,
+        income: {
+          ...prev.income,
+          ...result.incomeDetails,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching salary details:', error);
+    }
+  };
+
+  const setDeductions = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/deductions', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          deductions: formData.deductions,
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save deduction details');
+      }
+
+      const result = await response.json();
+
+      setActiveModal(null);
+    } catch (error) {
+      toast.error(`Error saving deduction details: ${String(error)}`);
     }
   }
+
+  const fetchDeductions = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/deductions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch deduction details');
+      }
+
+      const result = await response.json();
+
+      setFormData(prev => ({
+        ...prev,
+        deductions: {
+          ...prev.deductions,
+          ...result.deductionDetails,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching deduction details:', error);
+    }
+  }
+
+  const setHousing = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/housing', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          housing: formData.housing,
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save housing details');
+      }
+
+      const result = await response.json();
+
+      setActiveModal(null);
+    } catch (error) {
+      toast.error(`Error saving housing details: ${String(error)}`);
+    }
+  }
+
+  const fetchHousing = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/housing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch housing details');
+      }
+
+      const result = await response.json();
+
+      setFormData(prev => ({
+        ...prev,
+        housing: {
+          ...prev.housing,
+          ...result.housing,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching dhousing details:', error);
+    }
+  }
+
+  const setInvestments = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/investments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          investments: formData.investments,
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save investment details');
+      }
+  
+      const result = await response.json();
+  
+      setActiveModal(null);
+      toast.success('Investment details saved successfully!');
+    } catch (error) {
+      toast.error(`Error saving investment details: ${String(error)}`);
+    }
+  };
+
+  const fetchInvestments = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/investments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch investment details');
+      }
+  
+      const result = await response.json();
+  
+      setFormData(prev => ({
+        ...prev,
+        investments: {
+          ...prev.investments,
+          ...result.investments,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching investment details:', error);
+    }
+  };
+
+  const setOtherSources = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/otherSources', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          otherSources: formData.otherSources,
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save other sources details');
+      }
+  
+      const result = await response.json();
+  
+      setActiveModal(null);
+      toast.success('Other sources details saved successfully!');
+    } catch (error) {
+      toast.error(`Error saving other sources details: ${String(error)}`);
+    }
+  };
+
+  const fetchOtherSources = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/otherSources', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch other sources details');
+      }
+  
+      const result = await response.json();
+  
+      setFormData(prev => ({
+        ...prev,
+        otherSources: {
+          ...prev.otherSources,
+          ...result.otherSources,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching other sources details:', error);
+    }
+  };
+
+  const setTaxSavings = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/taxSaving', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          taxSaving: formData.taxSaving,
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save tax savings details');
+      }
+  
+      const result = await response.json();
+  
+      setActiveModal(null);
+      toast.success('Tax savings details saved successfully!');
+    } catch (error) {
+      toast.error(`Error saving tax savings details: ${String(error)}`);
+    }
+  };
+
+  const fetchTaxSavings = async () => {
+    try {
+      const response = await fetch('/api/inputDetails/taxSaving', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch tax savings details');
+      }
+  
+      const result = await response.json();
+  
+      setFormData(prev => ({
+        ...prev,
+        taxSaving: {
+          ...prev.taxSaving,
+          ...result.taxSaving,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching tax savings details:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
       // 
     } catch (error) {
-      
+
     }
   }
 
   // Function to update form data
-  const updateFormData = (category: keyof typeof formData, field: string, value: string | number |boolean) => {
+  const updateFormData = (category: keyof typeof formData, field: string, value: string | number | boolean) => {
     setFormData(prev => ({
-      ...prev, 
+      ...prev,
       [category]: {
         ...prev[category],
         [field]: value
@@ -189,10 +517,10 @@ const TaxFilingDashboard = () => {
       return (typeof value === 'string' && value !== '') || (typeof value === 'number' && !isNaN(value)) || (typeof value === 'boolean' && value !== null);
     });
     const progress = Math.round((filledFields.length / fields.length) * 100);
-    
+
     updateFormData(category, 'progress', progress);
     updateFormData(category, 'completed', progress === 100 ? 'true' : 'false');
-    
+
     return progress;
   };
 
@@ -224,8 +552,8 @@ const TaxFilingDashboard = () => {
   // Function to handle form submission
   const handleSubmit = () => {
     if (activeModal) {
-        calculateProgress(activeModal);
-      }
+      calculateProgress(activeModal);
+    }
     // Here you would typically save data via API
     if (activeModal) {
       if (activeModal) {
@@ -289,7 +617,7 @@ const TaxFilingDashboard = () => {
     <div className="w-full min-h-screen text-zinc-100 p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
         {taxCategories.map((category) => (
-          <Card 
+          <Card
             key={category.id}
             className="bg-[#1e1e1e] border-[#333333] hover:border-blue-600 transition-all duration-200 cursor-pointer"
             onClick={() => openModal(category.id)}
@@ -297,9 +625,8 @@ const TaxFilingDashboard = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 {category.icon}
-                <span className={`text-white text-xs px-2 py-1 rounded ${
-                  formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-amber-600'
-                }`}>
+                <span className={`text-white text-xs px-2 py-1 rounded ${formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-amber-600'
+                  }`}>
                   {formData[category.id].progress === 100 ? 'Completed' : 'Pending'}
                 </span>
               </div>
@@ -307,7 +634,7 @@ const TaxFilingDashboard = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-zinc-400 mb-3">{category.description}</p>
-              
+
               {formData[category.id].progress > 0 ? (
                 <div className="bg-[#252525] p-3 rounded border border-[#333333]">
                   <div className="flex justify-between text-sm mb-1">
@@ -315,10 +642,9 @@ const TaxFilingDashboard = () => {
                     <span className="text-zinc-300">{formData[category.id].progress}%</span>
                   </div>
                   <div className="w-full bg-[#333333] rounded-full h-2 mt-1">
-                    <div 
-                      className={`h-2 rounded-full ${
-                        formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-blue-600'
-                      }`} 
+                    <div
+                      className={`h-2 rounded-full ${formData[category.id].progress === 100 ? 'bg-green-600' : 'bg-blue-600'
+                        }`}
                       style={{ width: `${formData[category.id].progress}%` }}
                     ></div>
                   </div>
@@ -335,756 +661,756 @@ const TaxFilingDashboard = () => {
       </div>
       {/* Income Modal */}
       <Dialog open={activeModal === 'income'} onOpenChange={handleCloseModal}>
-      <DialogContent className="bg-[#1e1e1e] border-[#333333] text-zinc-100 max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Salary Details</DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Comprehensive salary breakdown with tax components
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <Tabs value={`step-${currentStep}`}>
-            <TabsList className="grid grid-cols-6 mb-6 bg-[#252525] gap-1">
-              {['Basic', 'Exempt', 'Perqs', 'Profits', 'Foreign', 'Addl'].map((label, index) => (
-                <TabsTrigger 
-                  key={label}
-                  value={`step-${index + 1}`}
-                  disabled={currentStep !== index + 1}
-                  className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-xs p-2"
+        <DialogContent className="bg-[#1e1e1e] border-[#333333] text-zinc-100 max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Salary Details</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Comprehensive salary breakdown with tax components
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <Tabs value={`step-${currentStep}`}>
+              <TabsList className="grid grid-cols-6 mb-6 bg-[#252525] gap-1">
+                {['Basic', 'Exempt', 'Perqs', 'Profits', 'Foreign', 'Addl'].map((label, index) => (
+                  <TabsTrigger
+                    key={label}
+                    value={`step-${index + 1}`}
+                    disabled={currentStep !== index + 1}
+                    className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-xs p-2"
+                  >
+                    {label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {/* Basic Salary Details */}
+              <TabsContent value="step-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Basic Salary"
+                    id="basicSalary"
+                    value={formData.income.basicSalary}
+                    onChange={(value) => updateFormData('income', 'basicSalary', value)}
+                  />
+                  <InputField
+                    label="Pension"
+                    id="pension"
+                    value={formData.income.pension}
+                    onChange={(value) => updateFormData('income', 'pension', value)}
+                  />
+                  <InputField
+                    label="Dearness Allowance"
+                    id="dearnessAllowance"
+                    value={formData.income.dearnessAllowance}
+                    onChange={(value) => updateFormData('income', 'dearnessAllowance', value)}
+                  />
+                  <InputField
+                    label="Bonus & Commissions"
+                    id="bonusCommissions"
+                    value={formData.income.bonusCommissions}
+                    onChange={(value) => updateFormData('income', 'bonusCommissions', value)}
+                  />
+                  <InputField
+                    label="Advance Salary"
+                    id="advanceSalary"
+                    value={formData.income.advanceSalary}
+                    onChange={(value) => updateFormData('income', 'advanceSalary', value)}
+                  />
+                  <InputField
+                    label="Arrears of Salary"
+                    id="arrearsSalary"
+                    value={formData.income.arrearsSalary}
+                    onChange={(value) => updateFormData('income', 'arrearsSalary', value)}
+                  />
+                  <InputField
+                    label="Leave Encashment"
+                    id="leaveEncashment"
+                    value={formData.income.leaveEncashment}
+                    onChange={(value) => updateFormData('income', 'leaveEncashment', value)}
+                  />
+                  <InputField
+                    label="Gratuity"
+                    id="gratuity"
+                    value={formData.income.gratuity}
+                    onChange={(value) => updateFormData('income', 'gratuity', value)}
+                  />
+                  <InputField
+                    label="HRA Received"
+                    id="hraReceived"
+                    value={formData.income.hraReceived}
+                    onChange={(value) => updateFormData('income', 'hraReceived', value)}
+                  />
+                  <InputField
+                    label="Entertainment Allowance"
+                    id="entertainmentAllowance"
+                    value={formData.income.entertainmentAllowance}
+                    onChange={(value) => updateFormData('income', 'entertainmentAllowance', value)}
+                  />
+                  <InputField
+                    label="Professional Tax"
+                    id="professionalTax"
+                    value={formData.income.professionalTax}
+                    onChange={(value) => updateFormData('income', 'professionalTax', value)}
+                  />
+                  <InputField
+                    label="Other Components (10C)"
+                    id="otherComponents"
+                    value={formData.income.otherComponents}
+                    onChange={(value) => updateFormData('income', 'otherComponents', value)}
+                  />
+                </div>
+              </TabsContent>
+              {/* Section 10 Exemptions */}
+              <TabsContent value="step-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Rent Paid"
+                    id="rentPaid"
+                    value={formData.income.rentPaid}
+                    onChange={(value) => updateFormData('income', 'rentPaid', value)}
+                  />
+                  <div className="space-y-2">
+                    <Label>Metro City?</Label>
+                    <Select
+                      value={formData.income.isMetro ? "1" : "0"}
+                      onValueChange={(v) => updateFormData('income', 'isMetro', v === "1")}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333]">
+                        <SelectValue placeholder="Select city type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <InputField
+                    label="LTA Claimed"
+                    id="ltaClaimed"
+                    value={formData.income.ltaClaimed}
+                    onChange={(value) => updateFormData('income', 'ltaClaimed', value)}
+                  />
+                  <InputField
+                    label="Children Education"
+                    id="childrenEducation"
+                    value={formData.income.childrenEducation}
+                    onChange={(value) => updateFormData('income', 'childrenEducation', value)}
+                  />
+                  <InputField
+                    label="Hostel Allowance"
+                    id="hostelAllowance"
+                    value={formData.income.hostelAllowance}
+                    onChange={(value) => updateFormData('income', 'hostelAllowance', value)}
+                  />
+                  <InputField
+                    label="Transport Allowance"
+                    id="transportAllowance"
+                    value={formData.income.transportAllowance}
+                    onChange={(value) => updateFormData('income', 'transportAllowance', value)}
+                  />
+                  <InputField
+                    label="Total Pension"
+                    id="totalPension"
+                    value={formData.income.totalPension}
+                    onChange={(value) => updateFormData('income', 'totalPension', value)}
+                  />
+                  <InputField
+                    label="Commuted Pension"
+                    id="commutedPension"
+                    value={formData.income.commutedPension}
+                    onChange={(value) => updateFormData('income', 'commutedPension', value)}
+                  />
+                  <InputField
+                    label="VRS Compensation"
+                    id="vrsCompensation"
+                    value={formData.income.vrsCompensation}
+                    onChange={(value) => updateFormData('income', 'vrsCompensation', value)}
+                  />
+                </div>
+              </TabsContent>
+
+              {/* Perquisites */}
+              <TabsContent value="step-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Rent-Free Accommodation"
+                    id="rentFreeAccommodation"
+                    value={formData.income.rentFreeAccommodation}
+                    onChange={(value) => updateFormData('income', 'rentFreeAccommodation', value)}
+                  />
+                  <InputField
+                    label="Concession in Rent"
+                    id="concessionInRent"
+                    value={formData.income.concessionInRent}
+                    onChange={(value) => updateFormData('income', 'concessionInRent', value)}
+                  />
+                  <InputField
+                    label="Company Car Value"
+                    id="companyCar"
+                    value={formData.income.companyCar}
+                    onChange={(value) => updateFormData('income', 'companyCar', value)}
+                  />
+                  <InputField
+                    label="Free Utilities"
+                    id="freeUtilities"
+                    value={formData.income.freeUtilities}
+                    onChange={(value) => updateFormData('income', 'freeUtilities', value)}
+                  />
+                  <InputField
+                    label="Medical Facilities"
+                    id="medicalFacilities"
+                    value={formData.income.medicalFacilities}
+                    onChange={(value) => updateFormData('income', 'medicalFacilities', value)}
+                  />
+                  <InputField
+                    label="Interest-Free Loans"
+                    id="interestFreeLoans"
+                    value={formData.income.interestFreeLoans}
+                    onChange={(value) => updateFormData('income', 'interestFreeLoans', value)}
+                  />
+                  <InputField
+                    label="ESOPs Value"
+                    id="esops"
+                    value={formData.income.esops}
+                    onChange={(value) => updateFormData('income', 'esops', value)}
+                  />
+                  <InputField
+                    label="Education Expenses"
+                    id="educationExpenses"
+                    value={formData.income.educationExpenses}
+                    onChange={(value) => updateFormData('income', 'educationExpenses', value)}
+                  />
+                </div>
+              </TabsContent>
+
+              {/* Profits in Lieu */}
+              <TabsContent value="step-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Termination Compensation"
+                    id="terminationCompensation"
+                    value={formData.income.terminationCompensation}
+                    onChange={(value) => updateFormData('income', 'terminationCompensation', value)}
+                  />
+                  <InputField
+                    label="Retirement Compensation"
+                    id="retirementCompensation"
+                    value={formData.income.retirementCompensation}
+                    onChange={(value) => updateFormData('income', 'retirementCompensation', value)}
+                  />
+                  <InputField
+                    label="VRS Amount"
+                    id="vrsAmount"
+                    value={formData.income.vrsAmount}
+                    onChange={(value) => updateFormData('income', 'vrsAmount', value)}
+                  />
+                  <InputField
+                    label="Keyman Insurance"
+                    id="keymanInsurance"
+                    value={formData.income.keymanInsurance}
+                    onChange={(value) => updateFormData('income', 'keymanInsurance', value)}
+                  />
+                  <InputField
+                    label="Pre-Employment Payments"
+                    id="preEmploymentPayments"
+                    value={formData.income.preEmploymentPayments}
+                    onChange={(value) => updateFormData('income', 'preEmploymentPayments', value)}
+                  />
+                  <InputField
+                    label="Post-Resignation Payments"
+                    id="postResignationPayments"
+                    value={formData.income.postResignationPayments}
+                    onChange={(value) => updateFormData('income', 'postResignationPayments', value)}
+                  />
+                </div>
+              </TabsContent>
+
+              {/* Foreign Retirement */}
+              <TabsContent value="step-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField
+                    label="Notified Country Retirement"
+                    id="foreignRetirementNotified"
+                    value={formData.income.foreignRetirementNotified}
+                    onChange={(value) => updateFormData('income', 'foreignRetirementNotified', value)}
+                  />
+                  <InputField
+                    label="Non-Notified Country Retirement"
+                    id="foreignRetirementNonNotified"
+                    value={formData.income.foreignRetirementNonNotified}
+                    onChange={(value) => updateFormData('income', 'foreignRetirementNonNotified', value)}
+                  />
+                  <InputField
+                    label="Section 89A Withdrawal"
+                    id="section89AWithdrawal"
+                    value={formData.income.section89AWithdrawal}
+                    onChange={(value) => updateFormData('income', 'section89AWithdrawal', value)}
+                  />
+                </div>
+              </TabsContent>
+
+              {/* Additional Details */}
+              <TabsContent value="step-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Government Employee?</Label>
+                    <Select
+                      value={formData.income.isGovernmentEmployee ? "1" : "0"}
+                      onValueChange={(v) => updateFormData('income', 'isGovernmentEmployee', v === "1")}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333]">
+                        <SelectValue placeholder="Select employment type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <InputField
+                    label="Employee Age"
+                    id="employeeAge"
+                    type="number"
+                    value={formData.income.employeeAge}
+                    onChange={(value) => updateFormData('income', 'employeeAge', value)}
+                  />
+
+                  <div className="space-y-2">
+                    <Label>Has Gratuity?</Label>
+                    <Select
+                      value={formData.income.hasGratuity ? "1" : "0"}
+                      onValueChange={(v) => updateFormData('income', 'hasGratuity', v === "1")}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333]">
+                        <SelectValue placeholder="Select gratuity status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <InputField
+                    label="Unused Leaves (months)"
+                    id="unusedLeaves"
+                    type="number"
+                    value={formData.income.unusedLeaves}
+                    onChange={(value) => updateFormData('income', 'unusedLeaves', value)}
+                  />
+
+                  <div className="space-y-2">
+                    <Label>Retiring?</Label>
+                    <Select
+                      value={formData.income.isRetiring ? "1" : "0"}
+                      onValueChange={(v) => updateFormData('income', 'isRetiring', v === "1")}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333]">
+                        <SelectValue placeholder="Select retirement status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Old Tax Regime?</Label>
+                    <Select
+                      value={formData.income.underOldTaxRegime ? "1" : "0"}
+                      onValueChange={(v) => updateFormData('income', 'underOldTaxRegime', v === "1")}
+                    >
+                      <SelectTrigger className="bg-[#252525] border-[#333333]">
+                        <SelectValue placeholder="Select tax regime" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+
+
+            </Tabs>
+          </div>
+
+          <DialogFooter className="flex justify-between">
+            <div>
+              {currentStep > 1 && (
+                <Button
+                  variant="outline"
+                  className="border-[#333333] hover:bg-[#252525] text-zinc-300"
+                  onClick={handlePreviousStep}
                 >
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {/* Basic Salary Details */}
-            <TabsContent value="step-1">
-              <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Basic Salary" 
-                  id="basicSalary"
-                  value={formData.income.basicSalary}
-                  onChange={(value) => updateFormData('income', 'basicSalary', value)}
-                />
-                <InputField 
-                  label="Pension" 
-                  id="pension"
-                  value={formData.income.pension}
-                  onChange={(value) => updateFormData('income', 'pension', value)}
-                />
-                <InputField 
-                  label="Dearness Allowance" 
-                  id="dearnessAllowance"
-                  value={formData.income.dearnessAllowance}
-                  onChange={(value) => updateFormData('income', 'dearnessAllowance', value)}
-                />
-                <InputField 
-                  label="Bonus & Commissions" 
-                  id="bonusCommissions"
-                  value={formData.income.bonusCommissions}
-                  onChange={(value) => updateFormData('income', 'bonusCommissions', value)}
-                />
-                <InputField 
-                  label="Advance Salary" 
-                  id="advanceSalary"
-                  value={formData.income.advanceSalary}
-                  onChange={(value) => updateFormData('income', 'advanceSalary', value)}
-                />
-                <InputField 
-                  label="Arrears of Salary" 
-                  id="arrearsSalary"
-                  value={formData.income.arrearsSalary}
-                  onChange={(value) => updateFormData('income', 'arrearsSalary', value)}
-                />
-                <InputField 
-                  label="Leave Encashment" 
-                  id="leaveEncashment"
-                  value={formData.income.leaveEncashment}
-                  onChange={(value) => updateFormData('income', 'leaveEncashment', value)}
-                />
-                <InputField 
-                  label="Gratuity" 
-                  id="gratuity"
-                  value={formData.income.gratuity}
-                  onChange={(value) => updateFormData('income', 'gratuity', value)}
-                />
-                <InputField 
-                  label="HRA Received" 
-                  id="hraReceived"
-                  value={formData.income.hraReceived}
-                  onChange={(value) => updateFormData('income', 'hraReceived', value)}
-                />
-                <InputField
-                  label="Entertainment Allowance" 
-                  id="entertainmentAllowance"
-                  value={formData.income.entertainmentAllowance}
-                  onChange={(value) => updateFormData('income', 'entertainmentAllowance', value)}
-                />
-                <InputField 
-                  label="Professional Tax" 
-                  id="professionalTax"
-                  value={formData.income.professionalTax}
-                  onChange={(value) => updateFormData('income', 'professionalTax', value)}
-                />
-                <InputField
-                  label="Other Components (10C)" 
-                  id="otherComponents"
-                  value={formData.income.otherComponents}
-                  onChange={(value) => updateFormData('income', 'otherComponents', value)}
-                />  
-              </div>
-            </TabsContent>
-            {/* Section 10 Exemptions */}
-            <TabsContent value="step-2">
-              <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Rent Paid" 
-                  id="rentPaid"
-                  value={formData.income.rentPaid}
-                  onChange={(value) => updateFormData('income', 'rentPaid', value)}
-                />
-                <div className="space-y-2">
-                  <Label>Metro City?</Label>
-                  <Select
-                    value={formData.income.isMetro ? "1" : "0"}
-                    onValueChange={(v) => updateFormData('income', 'isMetro', v === "1")}
-                  >
-                    <SelectTrigger className="bg-[#252525] border-[#333333]">
-                      <SelectValue placeholder="Select city type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Yes</SelectItem>
-                      <SelectItem value="0">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <InputField 
-                  label="LTA Claimed" 
-                  id="ltaClaimed"
-                  value={formData.income.ltaClaimed}
-                  onChange={(value) => updateFormData('income', 'ltaClaimed', value)}
-                />
-                <InputField 
-                  label="Children Education" 
-                  id="childrenEducation"
-                  value={formData.income.childrenEducation}
-                  onChange={(value) => updateFormData('income', 'childrenEducation', value)}
-                />
-                <InputField 
-                  label="Hostel Allowance" 
-                  id="hostelAllowance"
-                  value={formData.income.hostelAllowance}
-                  onChange={(value) => updateFormData('income', 'hostelAllowance', value)}
-                />
-                <InputField 
-                  label="Transport Allowance" 
-                  id="transportAllowance"
-                  value={formData.income.transportAllowance}
-                  onChange={(value) => updateFormData('income', 'transportAllowance', value)}
-                />
-                <InputField 
-                  label="Total Pension" 
-                  id="totalPension"
-                  value={formData.income.totalPension}
-                  onChange={(value) => updateFormData('income', 'totalPension', value)}  
-                />
-                <InputField
-                  label="Commuted Pension" 
-                  id="commutedPension"
-                  value={formData.income.commutedPension}
-                  onChange={(value) => updateFormData('income', 'commutedPension', value)} 
-                />
-                <InputField
-                  label="VRS Compensation" 
-                  id="vrsCompensation"
-                  value={formData.income.vrsCompensation}
-                  onChange={(value) => updateFormData('income', 'vrsCompensation', value)}
-                />
-              </div>
-            </TabsContent>
-
-            {/* Perquisites */}
-            <TabsContent value="step-3">
-              <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Rent-Free Accommodation" 
-                  id="rentFreeAccommodation"
-                  value={formData.income.rentFreeAccommodation}
-                  onChange={(value) => updateFormData('income', 'rentFreeAccommodation', value)}
-                />
-                <InputField 
-                  label="Concession in Rent" 
-                  id="concessionInRent"
-                  value={formData.income.concessionInRent}
-                  onChange={(value) => updateFormData('income', 'concessionInRent', value)}
-                />
-                <InputField 
-                  label="Company Car Value" 
-                  id="companyCar"
-                  value={formData.income.companyCar}
-                  onChange={(value) => updateFormData('income', 'companyCar', value)}
-                />
-                <InputField 
-                  label="Free Utilities" 
-                  id="freeUtilities"
-                  value={formData.income.freeUtilities}
-                  onChange={(value) => updateFormData('income', 'freeUtilities', value)}
-                />
-                <InputField 
-                  label="Medical Facilities" 
-                  id="medicalFacilities"
-                  value={formData.income.medicalFacilities}
-                  onChange={(value) => updateFormData('income', 'medicalFacilities', value)}
-                />
-                <InputField 
-                  label="Interest-Free Loans" 
-                  id="interestFreeLoans"
-                  value={formData.income.interestFreeLoans}
-                  onChange={(value) => updateFormData('income', 'interestFreeLoans', value)}
-                />
-                <InputField 
-                  label="ESOPs Value" 
-                  id="esops"
-                  value={formData.income.esops}
-                  onChange={(value) => updateFormData('income', 'esops', value)}
-                />
-                <InputField 
-                  label="Education Expenses" 
-                  id="educationExpenses"
-                  value={formData.income.educationExpenses}
-                  onChange={(value) => updateFormData('income', 'educationExpenses', value)}
-                />
-              </div>
-            </TabsContent>
-
-            {/* Profits in Lieu */}
-            <TabsContent value="step-4">
-              <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Termination Compensation" 
-                  id="terminationCompensation"
-                  value={formData.income.terminationCompensation}
-                  onChange={(value) => updateFormData('income', 'terminationCompensation', value)}
-                />
-                <InputField 
-                  label="Retirement Compensation" 
-                  id="retirementCompensation"
-                  value={formData.income.retirementCompensation}
-                  onChange={(value) => updateFormData('income', 'retirementCompensation', value)}
-                />
-                <InputField 
-                  label="VRS Amount" 
-                  id="vrsAmount"
-                  value={formData.income.vrsAmount}
-                  onChange={(value) => updateFormData('income', 'vrsAmount', value)}
-                />
-                <InputField 
-                  label="Keyman Insurance" 
-                  id="keymanInsurance"
-                  value={formData.income.keymanInsurance}
-                  onChange={(value) => updateFormData('income', 'keymanInsurance', value)}
-                />
-                <InputField 
-                  label="Pre-Employment Payments" 
-                  id="preEmploymentPayments"
-                  value={formData.income.preEmploymentPayments}
-                  onChange={(value) => updateFormData('income', 'preEmploymentPayments', value)}
-                />
-                <InputField 
-                  label="Post-Resignation Payments" 
-                  id="postResignationPayments"
-                  value={formData.income.postResignationPayments}
-                  onChange={(value) => updateFormData('income', 'postResignationPayments', value)}
-                />
-              </div>
-            </TabsContent>
-
-            {/* Foreign Retirement */}
-            <TabsContent value="step-5">
-              <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Notified Country Retirement" 
-                  id="foreignRetirementNotified"
-                  value={formData.income.foreignRetirementNotified}
-                  onChange={(value) => updateFormData('income', 'foreignRetirementNotified', value)}
-                />
-                <InputField 
-                  label="Non-Notified Country Retirement" 
-                  id="foreignRetirementNonNotified"
-                  value={formData.income.foreignRetirementNonNotified}
-                  onChange={(value) => updateFormData('income', 'foreignRetirementNonNotified', value)}
-                />
-                <InputField 
-                  label="Section 89A Withdrawal" 
-                  id="section89AWithdrawal"
-                  value={formData.income.section89AWithdrawal}
-                  onChange={(value) => updateFormData('income', 'section89AWithdrawal', value)}
-                />
-              </div>
-            </TabsContent>
-
-            {/* Additional Details */}
-            <TabsContent value="step-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Government Employee?</Label>
-                  <Select
-                    value={formData.income.isGovernmentEmployee ? "1" : "0"}
-                    onValueChange={(v) => updateFormData('income', 'isGovernmentEmployee', v === "1")}
-                  >
-                    <SelectTrigger className="bg-[#252525] border-[#333333]">
-                      <SelectValue placeholder="Select employment type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Yes</SelectItem>
-                      <SelectItem value="0">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <InputField 
-                  label="Employee Age" 
-                  id="employeeAge"
-                  type="number"
-                  value={formData.income.employeeAge}
-                  onChange={(value) => updateFormData('income', 'employeeAge', value)}
-                />
-                
-                <div className="space-y-2">
-                  <Label>Has Gratuity?</Label>
-                  <Select
-                    value={formData.income.hasGratuity ? "1" : "0"}
-                    onValueChange={(v) => updateFormData('income', 'hasGratuity', v === "1")}
-                  >
-                    <SelectTrigger className="bg-[#252525] border-[#333333]">
-                      <SelectValue placeholder="Select gratuity status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Yes</SelectItem>
-                      <SelectItem value="0">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <InputField 
-                  label="Unused Leaves (months)" 
-                  id="unusedLeaves"
-                  type="number"
-                  value={formData.income.unusedLeaves}
-                  onChange={(value) => updateFormData('income', 'unusedLeaves', value)}
-                />
-                
-                <div className="space-y-2">
-                  <Label>Retiring?</Label>
-                  <Select
-                    value={formData.income.isRetiring ? "1" : "0"}
-                    onValueChange={(v) => updateFormData('income', 'isRetiring', v === "1")}
-                  >
-                    <SelectTrigger className="bg-[#252525] border-[#333333]">
-                      <SelectValue placeholder="Select retirement status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Yes</SelectItem>
-                      <SelectItem value="0">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Old Tax Regime?</Label>
-                  <Select
-                    value={formData.income.underOldTaxRegime ? "1" : "0"}
-                    onValueChange={(v) => updateFormData('income', 'underOldTaxRegime', v === "1")}
-                  >
-                    <SelectTrigger className="bg-[#252525] border-[#333333]">
-                      <SelectValue placeholder="Select tax regime" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Yes</SelectItem>
-                      <SelectItem value="0">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </TabsContent>
-
-            
-          </Tabs>
-        </div>
-        
-        <DialogFooter className="flex justify-between">
-          <div>
-            {currentStep > 1 && (
-              <Button 
-                variant="outline" 
-                className="border-[#333333] hover:bg-[#252525] text-zinc-300"
-                onClick={handlePreviousStep}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Previous
-              </Button>
-            )}
-          </div>
-          <div>
-            {currentStep < 6 ? (
-              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
-                Next
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button className="bg-green-600 hover:bg-green-700" onClick={handleSubmit}>
-                <Check className="mr-2 h-4 w-4" />
-                Submit
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Previous
+                </Button>
+              )}
+            </div>
+            <div>
+              {currentStep < 6 ? (
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                  Next
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button className="bg-green-600 hover:bg-green-700" onClick={handleSubmit}>
+                  <Check className="mr-2 h-4 w-4" />
+                  Submit
+                </Button>
+              )}
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Deductions Modal */}
       <Dialog open={activeModal === 'deductions'} onOpenChange={handleCloseModal}>
-      <DialogContent className="bg-[#1e1e1e] border-[#333333] text-zinc-100 max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Deductions</DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Enter details for various tax deductions
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent className="bg-[#1e1e1e] border-[#333333] text-zinc-100 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Deductions</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Enter details for various tax deductions
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="py-4">
-          <Tabs value={`step-${currentStep}`}>
-            <TabsList className="grid grid-cols-2 mb-6 bg-[#252525]">
-              <TabsTrigger
-                value="step-1"
-                disabled={currentStep !== 1}
-                className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
-              >
-                80C Deductions
-              </TabsTrigger>
-              <TabsTrigger
-                value="step-2"
-                disabled={currentStep !== 2}
-                className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
-              >
-                Other Deductions
-              </TabsTrigger>
-            </TabsList>
+          <div className="py-4">
+            <Tabs value={`step-${currentStep}`}>
+              <TabsList className="grid grid-cols-2 mb-6 bg-[#252525]">
+                <TabsTrigger
+                  value="step-1"
+                  disabled={currentStep !== 1}
+                  className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
+                >
+                  80C Deductions
+                </TabsTrigger>
+                <TabsTrigger
+                  value="step-2"
+                  disabled={currentStep !== 2}
+                  className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
+                >
+                  Other Deductions
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="step-1">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="section80C">
-                    Section 80C (Max ₹1,50,000) - PPF, ELSS, Life Insurance, etc.
-                  </Label>
-                  <Input
-                    id="section80C"
-                    type="number"
-                    placeholder="Enter Section 80C amount (Max ₹1,50,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80C}
-                    onChange={(e) => updateFormData('deductions', 'section80C', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
+              <TabsContent value="step-1">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="section80C">
+                      Section 80C (Max ₹1,50,000) - PPF, ELSS, Life Insurance, etc.
+                    </Label>
+                    <Input
+                      id="section80C"
+                      type="number"
+                      placeholder="Enter Section 80C amount (Max ₹1,50,000)"
+                      className="bg-[#252525] border-[#333333] text-zinc-300"
+                      value={formData.deductions.section80C}
+                      onChange={(e) => updateFormData('deductions', 'section80C', e.target.value)}
+                    />
+                    <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section80CCC">
+                      Section 80CCC (Max ₹1,50,000) - Annuity Plans (LIC, etc.)
+                    </Label>
+                    <Input
+                      id="section80CCC"
+                      type="number"
+                      placeholder="Enter Section 80CCC amount (Max ₹1,50,000)"
+                      className="bg-[#252525] border-[#333333] text-zinc-300"
+                      value={formData.deductions.section80CCC}
+                      onChange={(e) => updateFormData('deductions', 'section80CCC', e.target.value)}
+                    />
+                    <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section80CCD1">
+                      Section 80CCD(1) (Included in 80C Limit) - NPS Contribution
+                    </Label>
+                    <Input
+                      id="section80CCD1"
+                      type="number"
+                      placeholder="Enter Section 80CCD(1) amount"
+                      className="bg-[#252525] border-[#333333] text-zinc-300"
+                      value={formData.deductions.section80CCD1}
+                      onChange={(e) => updateFormData('deductions', 'section80CCD1', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section80CCD1B">
+                      Section 80CCD(1B) (Max ₹50,000) - Additional NPS Contribution
+                    </Label>
+                    <Input
+                      id="section80CCD1B"
+                      type="number"
+                      placeholder="Enter Section 80CCD(1B) amount (Max ₹50,000)"
+                      className="bg-[#252525] border-[#333333] text-zinc-300"
+                      value={formData.deductions.section80CCD1B}
+                      onChange={(e) => updateFormData('deductions', 'section80CCD1B', e.target.value)}
+                    />
+                    <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="section80CCD2">
+                      Section 80CCD(2) - Employer NPS Contribution (No Limit)
+                    </Label>
+                    <Input
+                      id="section80CCD2"
+                      type="number"
+                      placeholder="Enter Section 80CCD(2) amount"
+                      className="bg-[#252525] border-[#333333] text-zinc-300"
+                      value={formData.deductions.section80CCD2}
+                      onChange={(e) => updateFormData('deductions', 'section80CCD2', e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="section80CCC">
-                    Section 80CCC (Max ₹1,50,000) - Annuity Plans (LIC, etc.)
-                  </Label>
-                  <Input
-                    id="section80CCC"
-                    type="number"
-                    placeholder="Enter Section 80CCC amount (Max ₹1,50,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80CCC}
-                    onChange={(e) => updateFormData('deductions', 'section80CCC', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="section80CCD1">
-                    Section 80CCD(1) (Included in 80C Limit) - NPS Contribution
-                  </Label>
-                  <Input
-                    id="section80CCD1"
-                    type="number"
-                    placeholder="Enter Section 80CCD(1) amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80CCD1}
-                    onChange={(e) => updateFormData('deductions', 'section80CCD1', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="section80CCD1B">
-                    Section 80CCD(1B) (Max ₹50,000) - Additional NPS Contribution
-                  </Label>
-                  <Input
-                    id="section80CCD1B"
-                    type="number"
-                    placeholder="Enter Section 80CCD(1B) amount (Max ₹50,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80CCD1B}
-                    onChange={(e) => updateFormData('deductions', 'section80CCD1B', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="section80CCD2">
-                    Section 80CCD(2) - Employer NPS Contribution (No Limit)
-                  </Label>
-                  <Input
-                    id="section80CCD2"
-                    type="number"
-                    placeholder="Enter Section 80CCD(2) amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80CCD2}
-                    onChange={(e) => updateFormData('deductions', 'section80CCD2', e.target.value)}
-                  />
-                </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="step-2">
-              <div className="space-y-4">
-                <ScrollArea className="h-96 overflow-y-auto">
-                <div className="space-y-2">
-                  <Label htmlFor="section80D">
-                    Section 80D (&#8377;25K (&lt;60yrs), &#8377;50K (Senior Citizens)) - Health Insurance
-                  </Label>
-                  <Input
-                    id="section80D"
-                    type="number"
-                    placeholder="Enter health insurance premium (₹25K (<60yrs), ₹50K (Senior Citizens))"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80D}
-                    onChange={(e) => updateFormData('deductions', 'section80D', e.target.value)}
-                  />
+              <TabsContent value="step-2">
+                <div className="space-y-4">
+                  <ScrollArea className="h-96 overflow-y-auto">
+                    <div className="space-y-2">
+                      <Label htmlFor="section80D">
+                        Section 80D (&#8377;25K (&lt;60yrs), &#8377;50K (Senior Citizens)) - Health Insurance
+                      </Label>
+                      <Input
+                        id="section80D"
+                        type="number"
+                        placeholder="Enter health insurance premium (₹25K (<60yrs), ₹50K (Senior Citizens))"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80D}
+                        onChange={(e) => updateFormData('deductions', 'section80D', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80DD">
+                        Section 80DD (₹75K - ₹1.25L) - Dependent Disability
+                      </Label>
+                      <Input
+                        id="section80DD"
+                        type="number"
+                        placeholder="Enter Section 80DD amount (₹75K - ₹1.25L)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80DD}
+                        onChange={(e) => updateFormData('deductions', 'section80DD', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80DDB">
+                        Section 80DDB (₹40K - ₹1L) - Medical Treatment of Critical Illness
+                      </Label>
+                      <Input
+                        id="section80DDB"
+                        type="number"
+                        placeholder="Enter Section 80DDB amount (₹40K - ₹1L)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80DDB}
+                        onChange={(e) => updateFormData('deductions', 'section80DDB', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80E">
+                        Section 80E (No Limit) - Education Loan Interest
+                      </Label>
+                      <Input
+                        id="section80E"
+                        type="number"
+                        placeholder="Enter Section 80E amount"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80E}
+                        onChange={(e) => updateFormData('deductions', 'section80E', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80EE">
+                        Section 80EE (Max ₹50,000) - First Home Loan Interest
+                      </Label>
+                      <Input
+                        id="section80EE"
+                        type="number"
+                        placeholder="Enter Section 80EE amount (Max ₹50,000)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80EE}
+                        onChange={(e) => updateFormData('deductions', 'section80EE', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80EEA">
+                        Section 80EEA (Max ₹1.5L) - Affordable Housing Loan Interest
+                      </Label>
+                      <Input
+                        id="section80EEA"
+                        type="number"
+                        placeholder="Enter Section 80EEA amount (Max ₹1.5L)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80EEA}
+                        onChange={(e) => updateFormData('deductions', 'section80EEA', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80EEB">
+                        Section 80EEB (Max ₹1.5L) - Electric Vehicle Loan Interest
+                      </Label>
+                      <Input
+                        id="section80EEB"
+                        type="number"
+                        placeholder="Enter Section 80EEB amount (Max ₹1.5L)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80EEB}
+                        onChange={(e) => updateFormData('deductions', 'section80EEB', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80G">
+                        Section 80G - Donations (Enter Deductible Amount)
+                      </Label>
+                      <Input
+                        id="section80G"
+                        type="number"
+                        placeholder="Enter Section 80G amount"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80G}
+                        onChange={(e) => updateFormData('deductions', 'section80G', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80GG">
+                        Section 80GG (Max ₹60,000) - Rent (If No HRA)
+                      </Label>
+                      <Input
+                        id="section80GG"
+                        type="number"
+                        placeholder="Enter Section 80GG amount (Max ₹60,000)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80GG}
+                        onChange={(e) => updateFormData('deductions', 'section80GG', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹60,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80GGA">
+                        Section 80GGA - Donations to Scientific Research
+                      </Label>
+                      <Input
+                        id="section80GGA"
+                        type="number"
+                        placeholder="Enter Section 80GGA amount"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80GGA}
+                        onChange={(e) => updateFormData('deductions', 'section80GGA', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80GGC">
+                        Section 80GGC - Donations to Political Parties
+                      </Label>
+                      <Input
+                        id="section80GGC"
+                        type="number"
+                        placeholder="Enter Section 80GGC amount"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80GGC}
+                        onChange={(e) => updateFormData('deductions', 'section80GGC', e.target.value)}
+                      />
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80TTA">
+                        Section 80TTA (Max ₹10,000) - Savings Account Interest
+                      </Label>
+                      <Input
+                        id="section80TTA"
+                        type="number"
+                        placeholder="Enter Section 80TTA amount (Max ₹10,000)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80TTA}
+                        onChange={(e) => updateFormData('deductions', 'section80TTA', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹10,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80TTB">
+                        Section 80TTB (Max ₹50,000) - Senior Citizen Interest (Savings & FD)
+                      </Label>
+                      <Input
+                        id="section80TTB"
+                        type="number"
+                        placeholder="Enter Section 80TTB amount (Max ₹50,000)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80TTB}
+                        onChange={(e) => updateFormData('deductions', 'section80TTB', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <Label htmlFor="section80U">
+                        Section 80U (₹75K - ₹1.25L) - Self-Disability Deduction
+                      </Label>
+                      <Input
+                        id="section80U"
+                        type="number"
+                        placeholder="Enter Section 80U amount (₹75K - ₹1.25L)"
+                        className="bg-[#252525] border-[#333333] text-zinc-300"
+                        value={formData.deductions.section80U}
+                        onChange={(e) => updateFormData('deductions', 'section80U', e.target.value)}
+                      />
+                      <p className="text-xs text-zinc-400 mt-1">Range: ₹75,000 - ₹1,25,000</p>
+                    </div>
+                  </ScrollArea>
                 </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80DD">
-                    Section 80DD (₹75K - ₹1.25L) - Dependent Disability
-                  </Label>
-                  <Input
-                    id="section80DD"
-                    type="number"
-                    placeholder="Enter Section 80DD amount (₹75K - ₹1.25L)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80DD}
-                    onChange={(e) => updateFormData('deductions', 'section80DD', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80DDB">
-                    Section 80DDB (₹40K - ₹1L) - Medical Treatment of Critical Illness
-                  </Label>
-                  <Input
-                    id="section80DDB"
-                    type="number"
-                    placeholder="Enter Section 80DDB amount (₹40K - ₹1L)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80DDB}
-                    onChange={(e) => updateFormData('deductions', 'section80DDB', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80E">
-                    Section 80E (No Limit) - Education Loan Interest
-                  </Label>
-                  <Input
-                    id="section80E"
-                    type="number"
-                    placeholder="Enter Section 80E amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80E}
-                    onChange={(e) => updateFormData('deductions', 'section80E', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80EE">
-                    Section 80EE (Max ₹50,000) - First Home Loan Interest
-                  </Label>
-                  <Input
-                    id="section80EE"
-                    type="number"
-                    placeholder="Enter Section 80EE amount (Max ₹50,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80EE}
-                    onChange={(e) => updateFormData('deductions', 'section80EE', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80EEA">
-                    Section 80EEA (Max ₹1.5L) - Affordable Housing Loan Interest
-                  </Label>
-                  <Input
-                    id="section80EEA"
-                    type="number"
-                    placeholder="Enter Section 80EEA amount (Max ₹1.5L)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80EEA}
-                    onChange={(e) => updateFormData('deductions', 'section80EEA', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80EEB">
-                    Section 80EEB (Max ₹1.5L) - Electric Vehicle Loan Interest
-                  </Label>
-                  <Input
-                    id="section80EEB"
-                    type="number"
-                    placeholder="Enter Section 80EEB amount (Max ₹1.5L)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80EEB}
-                    onChange={(e) => updateFormData('deductions', 'section80EEB', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹1,50,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80G">
-                    Section 80G - Donations (Enter Deductible Amount)
-                  </Label>
-                  <Input
-                    id="section80G"
-                    type="number"
-                    placeholder="Enter Section 80G amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80G}
-                    onChange={(e) => updateFormData('deductions', 'section80G', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80GG">
-                    Section 80GG (Max ₹60,000) - Rent (If No HRA)
-                  </Label>
-                  <Input
-                    id="section80GG"
-                    type="number"
-                    placeholder="Enter Section 80GG amount (Max ₹60,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80GG}
-                    onChange={(e) => updateFormData('deductions', 'section80GG', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹60,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80GGA">
-                    Section 80GGA - Donations to Scientific Research
-                  </Label>
-                  <Input
-                    id="section80GGA"
-                    type="number"
-                    placeholder="Enter Section 80GGA amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80GGA}
-                    onChange={(e) => updateFormData('deductions', 'section80GGA', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80GGC">
-                    Section 80GGC - Donations to Political Parties
-                  </Label>
-                  <Input
-                    id="section80GGC"
-                    type="number"
-                    placeholder="Enter Section 80GGC amount"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80GGC}
-                    onChange={(e) => updateFormData('deductions', 'section80GGC', e.target.value)}
-                  />
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80TTA">
-                    Section 80TTA (Max ₹10,000) - Savings Account Interest
-                  </Label>
-                  <Input
-                    id="section80TTA"
-                    type="number"
-                    placeholder="Enter Section 80TTA amount (Max ₹10,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80TTA}
-                    onChange={(e) => updateFormData('deductions', 'section80TTA', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹10,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80TTB">
-                    Section 80TTB (Max ₹50,000) - Senior Citizen Interest (Savings & FD)
-                  </Label>
-                  <Input
-                    id="section80TTB"
-                    type="number"
-                    placeholder="Enter Section 80TTB amount (Max ₹50,000)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80TTB}
-                    onChange={(e) => updateFormData('deductions', 'section80TTB', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Maximum limit: ₹50,000</p>
-                </div>
-                <Separator className="my-2" />
-                <div className="space-y-2">
-                  <Label htmlFor="section80U">
-                    Section 80U (₹75K - ₹1.25L) - Self-Disability Deduction
-                  </Label>
-                  <Input
-                    id="section80U"
-                    type="number"
-                    placeholder="Enter Section 80U amount (₹75K - ₹1.25L)"
-                    className="bg-[#252525] border-[#333333] text-zinc-300"
-                    value={formData.deductions.section80U}
-                    onChange={(e) => updateFormData('deductions', 'section80U', e.target.value)}
-                  />
-                  <p className="text-xs text-zinc-400 mt-1">Range: ₹75,000 - ₹1,25,000</p>
-                </div>
-                </ScrollArea>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        <DialogFooter className="flex justify-between">
-          <div>
-            {currentStep > 1 && (
-              <Button
-                variant="outline"
-                className="border-[#333333] hover:bg-[#252525] text-zinc-300"
-                onClick={handlePreviousStep}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Previous
-              </Button>
-            )}
+              </TabsContent>
+            </Tabs>
           </div>
-          <div>
-            {currentStep < 2 ? (
-              <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
-                Next
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button className="bg-green-600 hover:bg-green-700" onClick={handleSubmit}>
-                <Check className="mr-2 h-4 w-4" />
-                Submit
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+          <DialogFooter className="flex justify-between">
+            <div>
+              {currentStep > 1 && (
+                <Button
+                  variant="outline"
+                  className="border-[#333333] hover:bg-[#252525] text-zinc-300"
+                  onClick={handlePreviousStep}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Previous
+                </Button>
+              )}
+            </div>
+            <div>
+              {currentStep < 2 ? (
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNextStep}>
+                  Next
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button className="bg-green-600 hover:bg-green-700" onClick={handleSubmit}>
+                  <Check className="mr-2 h-4 w-4" />
+                  Submit
+                </Button>
+              )}
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Housing Modal */}
       <Dialog open={activeModal === 'housing'} onOpenChange={handleCloseModal}>
@@ -1100,7 +1426,7 @@ const TaxFilingDashboard = () => {
             {/* Self-Occupied Property Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-blue-400">Self-Occupied Property</h3>
-              <InputField 
+              <InputField
                 label="Interest on Housing Loan (Self-Occupied)"
                 id="interestSelfOccupied"
                 value={formData.housing.interestSelfOccupied}
@@ -1115,25 +1441,25 @@ const TaxFilingDashboard = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-green-400">Let-Out Property</h3>
               <div className="grid grid-cols-2 gap-4">
-                <InputField 
-                  label="Annual Rental Income" 
+                <InputField
+                  label="Annual Rental Income"
                   id="rentalIncome"
                   value={formData.housing.rentalIncome}
                   onChange={(value) => updateFormData('housing', 'rentalIncome', value)}
                 />
-                <InputField 
-                  label="Municipal Taxes Paid" 
+                <InputField
+                  label="Municipal Taxes Paid"
                   id="municipalTaxes"
                   value={formData.housing.municipalTaxes}
                   onChange={(value) => updateFormData('housing', 'municipalTaxes', value)}
                 />
-                <InputField 
-                  label="Unrealised Rent" 
+                <InputField
+                  label="Unrealised Rent"
                   id="unrealisedRent"
                   value={formData.housing.unrealisedRent}
                   onChange={(value) => updateFormData('housing', 'unrealisedRent', value)}
                 />
-                <InputField 
+                <InputField
                   label="Interest on Housing Loan (Let-Out)"
                   id="interestLetOut"
                   value={formData.housing.interestLetOut}
@@ -1164,18 +1490,18 @@ const TaxFilingDashboard = () => {
               Enter your investment details
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Tabs value={`step-${currentStep}`}>
               <TabsList className="grid grid-cols-2 mb-6 bg-[#252525]">
-                <TabsTrigger 
+                <TabsTrigger
                   value="step-1"
                   disabled={currentStep !== 1}
                   className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
                 >
                   Market Investments
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="step-2"
                   disabled={currentStep !== 2}
                   className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
@@ -1239,12 +1565,12 @@ const TaxFilingDashboard = () => {
               </TabsContent>
             </Tabs>
           </div>
-          
+
           <DialogFooter className="flex justify-between">
             <div>
               {currentStep > 1 && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-[#333333] hover:bg-[#252525] text-zinc-300"
                   onClick={handlePreviousStep}
                 >
@@ -1278,71 +1604,71 @@ const TaxFilingDashboard = () => {
               Enter income from various other sources
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <InputField 
-                label="Interest from Savings Bank Account" 
+              <InputField
+                label="Interest from Savings Bank Account"
                 id="interestSavings"
                 value={formData.otherSources.interestSavings}
                 onChange={(value) => updateFormData('otherSources', 'interestSavings', value)}
               />
-              <InputField 
-                label="Interest on Securities" 
+              <InputField
+                label="Interest on Securities"
                 id="interestSecurities"
                 value={formData.otherSources.interestSecurities}
                 onChange={(value) => updateFormData('otherSources', 'interestSecurities', value)}
               />
-              <InputField 
-                label="Other Interest Income" 
+              <InputField
+                label="Other Interest Income"
                 id="otherInterest"
                 value={formData.otherSources.otherInterest}
                 onChange={(value) => updateFormData('otherSources', 'otherInterest', value)}
               />
-              <InputField 
-                label="Commission/Brokerage Income" 
+              <InputField
+                label="Commission/Brokerage Income"
                 id="commissionIncome"
                 value={formData.otherSources.commissionIncome}
                 onChange={(value) => updateFormData('otherSources', 'commissionIncome', value)}
               />
-              <InputField 
-                label="Dividend Income (Taxable)" 
+              <InputField
+                label="Dividend Income (Taxable)"
                 id="dividendIncome"
                 value={formData.otherSources.dividendIncome}
                 onChange={(value) => updateFormData('otherSources', 'dividendIncome', value)}
               />
-              <InputField 
-                label="Lottery/Racing Winnings" 
+              <InputField
+                label="Lottery/Racing Winnings"
                 id="lotteryWinnings"
                 value={formData.otherSources.lotteryWinnings}
                 onChange={(value) => updateFormData('otherSources', 'lotteryWinnings', value)}
               />
-              <InputField 
-                label="Family Pension" 
+              <InputField
+                label="Family Pension"
                 id="familyPension"
                 value={formData.otherSources.familyPension}
                 onChange={(value) => updateFormData('otherSources', 'familyPension', value)}
               />
-              <InputField 
-                label="Unexplained Income (115BBE)" 
+              <InputField
+                label="Unexplained Income (115BBE)"
                 id="unexplainedIncome"
                 value={formData.otherSources.unexplainedIncome}
                 onChange={(value) => updateFormData('otherSources', 'unexplainedIncome', value)}
               />
-              <InputField 
-                label="Royalty from Patents (115BBF)" 
+              <InputField
+                label="Royalty from Patents (115BBF)"
                 id="patentRoyalty"
                 value={formData.otherSources.patentRoyalty}
                 onChange={(value) => updateFormData('otherSources', 'patentRoyalty', value)}
               />
-              <InputField 
-                label="Carbon Credit Income (115BBG)" 
+              <InputField
+                label="Carbon Credit Income (115BBG)"
                 id="carbonCredit"
                 value={formData.otherSources.carbonCredit}
                 onChange={(value) => updateFormData('otherSources', 'carbonCredit', value)}
               />
-              <InputField 
-                label="Premature PF Withdrawal" 
+              <InputField
+                label="Premature PF Withdrawal"
                 id="prematurePF"
                 value={formData.otherSources.prematurePF}
                 onChange={(value) => updateFormData('otherSources', 'prematurePF', value)}
@@ -1368,7 +1694,7 @@ const TaxFilingDashboard = () => {
               Enter your tax payments and filing details
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Tabs defaultValue="tax-payments">
               <TabsContent value="tax-payments">
@@ -1423,9 +1749,9 @@ const TaxFilingDashboard = () => {
                         <SelectValue placeholder="Select filing month" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#252525] border-[#333333] text-zinc-300">
-                        {Array.from({length: 12}, (_, i) => (
-                          <SelectItem key={i+1} value={(i+1).toString()}>
-                            {new Date(0, i).toLocaleString('default', {month: 'long'})}
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                            {new Date(0, i).toLocaleString('default', { month: 'long' })}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1435,10 +1761,10 @@ const TaxFilingDashboard = () => {
               </TabsContent>
             </Tabs>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              className="bg-green-600 hover:bg-green-700" 
+            <Button
+              className="bg-green-600 hover:bg-green-700"
               onClick={() => {
                 updateFormData('taxSaving', 'completed', true);
                 updateFormData('taxSaving', 'progress', 100);
@@ -1458,16 +1784,16 @@ const TaxFilingDashboard = () => {
 // The missing icon components
 const CustomPiggyBank = ({ className }: { className: string }) => {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      className={className} 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
     >
       <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z" />
@@ -1479,16 +1805,16 @@ const CustomPiggyBank = ({ className }: { className: string }) => {
 
 const CustomLibrary = ({ className }: { className: string }) => {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      className={className} 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
     >
       <path d="m16 6 4 14" />
@@ -1499,16 +1825,16 @@ const CustomLibrary = ({ className }: { className: string }) => {
   );
 };
 
-const InputField = ({ 
-  label, 
-  id, 
+const InputField = ({
+  label,
+  id,
   type = "number",
   value,
   onChange,
   decimal = true // New prop for decimal support
-}: { 
-  label: string, 
-  id: string, 
+}: {
+  label: string,
+  id: string,
   type?: string,
   value: string | number,
   onChange: (value: string) => void,
@@ -1516,14 +1842,14 @@ const InputField = ({
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value;
-    
+
     if (type === "number") {
       // Allow decimal point and numbers
       const validInput = newValue.match(/^\d*\.?\d*$/);
       if (!validInput) return;
 
       const numericValue = parseFloat(newValue);
-      
+
       // Handle empty input or single decimal point
       if (newValue === "" || newValue === ".") {
         newValue = "0";
@@ -1538,7 +1864,7 @@ const InputField = ({
         newValue = `${whole}.${fraction.slice(0, 2)}`;
       }
     }
-    
+
     onChange(newValue);
   };
 
