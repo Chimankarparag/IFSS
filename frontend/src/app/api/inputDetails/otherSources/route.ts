@@ -19,32 +19,34 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        // Create a new OtherSources document with all the provided fields
-        const otherSourcesDetails = new OtherSources({
-            user: user._id,
+        // Find and update existing other sources details or create a new one
+        const updatedOtherSources = await OtherSources.findOneAndUpdate(
+            { user: user._id }, // Find other sources details by user ID
+            {
+                // Update fields
+                user: user._id,
 
-            // Other Sources Income Details
-            interestSavings: otherSources.interestSavings,
-            interestSecurities: otherSources.interestSecurities,
-            otherInterest: otherSources.otherInterest,
-            commissionIncome: otherSources.commissionIncome,
-            dividendIncome: otherSources.dividendIncome,
-            lotteryWinnings: otherSources.lotteryWinnings,
-            familyPension: otherSources.familyPension,
-            unexplainedIncome: otherSources.unexplainedIncome,
-            patentRoyalty: otherSources.patentRoyalty,
-            carbonCredit: otherSources.carbonCredit,
-            prematurePF: otherSources.prematurePF,
+                // Other Sources Income Details
+                interestSavings: otherSources.interestSavings,
+                interestSecurities: otherSources.interestSecurities,
+                otherInterest: otherSources.otherInterest,
+                commissionIncome: otherSources.commissionIncome,
+                dividendIncome: otherSources.dividendIncome,
+                lotteryWinnings: otherSources.lotteryWinnings,
+                familyPension: otherSources.familyPension,
+                unexplainedIncome: otherSources.unexplainedIncome,
+                patentRoyalty: otherSources.patentRoyalty,
+                carbonCredit: otherSources.carbonCredit,
+                prematurePF: otherSources.prematurePF,
 
-            // Completion and Progress
-            completed: otherSources.completed,
-            progress: otherSources.progress,
-        });
+                // Completion and Progress
+                completed: otherSources.completed,
+                progress: otherSources.progress,
+            },
+            { new: true, upsert: true } // Create a new document if none exists
+        );
 
-        // Save the other sources document to the database
-        await otherSourcesDetails.save();
-
-        return NextResponse.json({ message: "Other sources details saved successfully!" }, { status: 201 });
+        return NextResponse.json({ message: "Other sources details saved successfully!", data: updatedOtherSources }, { status: 200 });
     } catch (error) {
         console.error("Error saving other sources details:", error);
         return NextResponse.json({ error: "An error occurred while saving other sources details" }, { status: 500 });

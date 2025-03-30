@@ -19,25 +19,27 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        // Create a new Investments document with all the provided fields
-        const investmentDetails = new Investments({
-            user: user._id,
+        // Find and update existing investment details or create a new one
+        const updatedInvestments = await Investments.findOneAndUpdate(
+            { user: user._id }, // Find investment details by user ID
+            {
+                // Update fields
+                user: user._id,
 
-            // Investment Details
-            stocks: investments.stocks,
-            mutualFunds: investments.mutualFunds,
-            fd: investments.fd,
-            ppf: investments.ppf,
+                // Investment Details
+                stocks: investments.stocks,
+                mutualFunds: investments.mutualFunds,
+                fd: investments.fd,
+                ppf: investments.ppf,
 
-            // Completion and Progress
-            completed: investments.completed,
-            progress: investments.progress,
-        });
+                // Completion and Progress
+                completed: investments.completed,
+                progress: investments.progress,
+            },
+            { new: true, upsert: true } // Create a new document if none exists
+        );
 
-        // Save the investments document to the database
-        await investmentDetails.save();
-
-        return NextResponse.json({ message: "Investment details saved successfully!" }, { status: 201 });
+        return NextResponse.json({ message: "Investment details saved successfully!", data: updatedInvestments }, { status: 200 });
     } catch (error) {
         console.error("Error saving investment details:", error);
         return NextResponse.json({ error: "An error occurred while saving investment details" }, { status: 500 });

@@ -19,27 +19,29 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        // Create a new TaxSaving document with all the provided fields
-        const taxSavingDetails = new TaxSaving({
-            user: user._id,
+        // Find and update existing tax saving details or create a new one
+        const updatedTaxSaving = await TaxSaving.findOneAndUpdate(
+            { user: user._id }, // Find tax saving details by user ID
+            {
+                // Update fields
+                user: user._id,
 
-            // Tax Saving Details
-            TDSpaid: taxSaving.TDSpaid,
-            advancetaxJune: taxSaving.advancetaxJune,
-            advancetaxSept: taxSaving.advancetaxSept,
-            advancetaxDec: taxSaving.advancetaxDec,
-            advancetaxMar: taxSaving.advancetaxMar,
-            monthOfItrFiling: taxSaving.monthOfItrFiling,
+                // Tax Saving Details
+                TDSpaid: taxSaving.TDSpaid,
+                advancetaxJune: taxSaving.advancetaxJune,
+                advancetaxSept: taxSaving.advancetaxSept,
+                advancetaxDec: taxSaving.advancetaxDec,
+                advancetaxMar: taxSaving.advancetaxMar,
+                monthOfItrFiling: taxSaving.monthOfItrFiling,
 
-            // Completion and Progress
-            completed: taxSaving.completed,
-            progress: taxSaving.progress,
-        });
+                // Completion and Progress
+                completed: taxSaving.completed,
+                progress: taxSaving.progress,
+            },
+            { new: true, upsert: true } // Create a new document if none exists
+        );
 
-        // Save the tax saving document to the database
-        await taxSavingDetails.save();
-
-        return NextResponse.json({ message: "Tax saving details saved successfully!" }, { status: 201 });
+        return NextResponse.json({ message: "Tax saving details saved successfully!", data: updatedTaxSaving }, { status: 200 });
     } catch (error) {
         console.error("Error saving tax saving details:", error);
         return NextResponse.json({ error: "An error occurred while saving tax saving details" }, { status: 500 });

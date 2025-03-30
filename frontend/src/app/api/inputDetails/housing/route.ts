@@ -19,26 +19,28 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        // Create a new Housing document with all the provided fields
-        const housingDetails = new Housing({
-            user: user._id,
+        // Find and update existing housing details or create a new one
+        const updatedHousing = await Housing.findOneAndUpdate(
+            { user: user._id }, // Find housing details by user ID
+            {
+                // Update fields
+                user: user._id,
 
-            // Housing Details
-            interestSelfOccupied: housing.interestSelfOccupied,
-            rentalIncome: housing.rentalIncome,
-            municipalTaxes: housing.municipalTaxes,
-            unrealisedRent: housing.unrealisedRent,
-            interestLetOut: housing.interestLetOut,
+                // Housing Details
+                interestSelfOccupied: housing.interestSelfOccupied,
+                rentalIncome: housing.rentalIncome,
+                municipalTaxes: housing.municipalTaxes,
+                unrealisedRent: housing.unrealisedRent,
+                interestLetOut: housing.interestLetOut,
 
-            // Completion and Progress
-            completed: housing.completed,
-            progress: housing.progress,
-        });
+                // Completion and Progress
+                completed: housing.completed,
+                progress: housing.progress,
+            },
+            { new: true, upsert: true } // Create a new document if none exists
+        );
 
-        // Save the housing document to the database
-        await housingDetails.save();
-
-        return NextResponse.json({ message: "Housing details saved successfully!" }, { status: 201 });
+        return NextResponse.json({ message: "Housing details saved successfully!", data: updatedHousing }, { status: 200 });
     } catch (error) {
         console.error("Error saving housing details:", error);
         return NextResponse.json({ error: "An error occurred while saving housing details" }, { status: 500 });

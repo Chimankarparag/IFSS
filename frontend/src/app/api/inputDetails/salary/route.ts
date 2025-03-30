@@ -19,75 +19,77 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        // Create a new Income document with all the provided fields
-        const incomeDetails = new Income({
-            user: user._id,
+        // Find and update existing income details or create a new one
+        const updatedIncome = await Income.findOneAndUpdate(
+            { user: user._id }, // Find income details by user ID
+            {
+                // Update fields
+                user: user._id,
 
-            // Basic Salary Details
-            basicSalary: income.basicSalary,
-            pension: income.pension,
-            dearnessAllowance: income.dearnessAllowance,
-            bonusCommissions: income.bonusCommissions,
-            advanceSalary: income.advanceSalary,
-            arrearsSalary: income.arrearsSalary,
-            leaveEncashment: income.leaveEncashment,
-            gratuity: income.gratuity,
-            hraReceived: income.hraReceived,
-            entertainmentAllowance: income.entertainmentAllowance,
-            professionalTax: income.professionalTax,
-            otherComponents: income.otherComponents,
+                // Basic Salary Details
+                basicSalary: income.basicSalary,
+                pension: income.pension,
+                dearnessAllowance: income.dearnessAllowance,
+                bonusCommissions: income.bonusCommissions,
+                advanceSalary: income.advanceSalary,
+                arrearsSalary: income.arrearsSalary,
+                leaveEncashment: income.leaveEncashment,
+                gratuity: income.gratuity,
+                hraReceived: income.hraReceived,
+                entertainmentAllowance: income.entertainmentAllowance,
+                professionalTax: income.professionalTax,
+                otherComponents: income.otherComponents,
 
-            // Section 10 Exemptions
-            rentPaid: income.rentPaid,
-            isMetro: income.isMetro,
-            ltaClaimed: income.ltaClaimed,
-            childrenEducation: income.childrenEducation,
-            hostelAllowance: income.hostelAllowance,
-            transportAllowance: income.transportAllowance,
-            totalPension: income.totalPension,
-            commutedPension: income.commutedPension,
-            vrsCompensation: income.vrsCompensation,
+                // Section 10 Exemptions
+                rentPaid: income.rentPaid,
+                isMetro: income.isMetro,
+                ltaClaimed: income.ltaClaimed,
+                childrenEducation: income.childrenEducation,
+                hostelAllowance: income.hostelAllowance,
+                transportAllowance: income.transportAllowance,
+                totalPension: income.totalPension,
+                commutedPension: income.commutedPension,
+                vrsCompensation: income.vrsCompensation,
 
-            // Perquisites
-            rentFreeAccommodation: income.rentFreeAccommodation,
-            concessionInRent: income.concessionInRent,
-            companyCar: income.companyCar,
-            freeUtilities: income.freeUtilities,
-            medicalFacilities: income.medicalFacilities,
-            interestFreeLoans: income.interestFreeLoans,
-            esops: income.esops,
-            educationExpenses: income.educationExpenses,
+                // Perquisites
+                rentFreeAccommodation: income.rentFreeAccommodation,
+                concessionInRent: income.concessionInRent,
+                companyCar: income.companyCar,
+                freeUtilities: income.freeUtilities,
+                medicalFacilities: income.medicalFacilities,
+                interestFreeLoans: income.interestFreeLoans,
+                esops: income.esops,
+                educationExpenses: income.educationExpenses,
 
-            // Profits in Lieu
-            terminationCompensation: income.terminationCompensation,
-            retirementCompensation: income.retirementCompensation,
-            vrsAmount: income.vrsAmount,
-            keymanInsurance: income.keymanInsurance,
-            preEmploymentPayments: income.preEmploymentPayments,
-            postResignationPayments: income.postResignationPayments,
+                // Profits in Lieu
+                terminationCompensation: income.terminationCompensation,
+                retirementCompensation: income.retirementCompensation,
+                vrsAmount: income.vrsAmount,
+                keymanInsurance: income.keymanInsurance,
+                preEmploymentPayments: income.preEmploymentPayments,
+                postResignationPayments: income.postResignationPayments,
 
-            // Foreign Retirement
-            foreignRetirementNotified: income.foreignRetirementNotified,
-            foreignRetirementNonNotified: income.foreignRetirementNonNotified,
-            section89AWithdrawal: income.section89AWithdrawal,
+                // Foreign Retirement
+                foreignRetirementNotified: income.foreignRetirementNotified,
+                foreignRetirementNonNotified: income.foreignRetirementNonNotified,
+                section89AWithdrawal: income.section89AWithdrawal,
 
-            // Additional Details
-            isGovernmentEmployee: income.isGovernmentEmployee,
-            employeeAge: income.employeeAge,
-            hasGratuity: income.hasGratuity,
-            unusedLeaves: income.unusedLeaves,
-            isRetiring: income.isRetiring,
-            underOldTaxRegime: income.underOldTaxRegime,
+                // Additional Details
+                isGovernmentEmployee: income.isGovernmentEmployee,
+                employeeAge: income.employeeAge,
+                hasGratuity: income.hasGratuity,
+                unusedLeaves: income.unusedLeaves,
+                isRetiring: income.isRetiring,
+                underOldTaxRegime: income.underOldTaxRegime,
 
-            // Completion and Progress
-            completed: income.completed,
-            progress: income.progress,
-        });
+                // Completion and Progress
+                completed: income.completed,
+                progress: income.progress,
+            },
+            { new: true, upsert: true } // Create a new document if none exists
+        );
 
-        // Save the income document to the database
-        await incomeDetails.save();
-
-        return NextResponse.json({ message: "Income details saved successfully!" }, { status: 201 });
+        return NextResponse.json({ message: "Income details saved successfully!", data: updatedIncome }, { status: 200 });
     } catch (error) {
         console.error("Error saving income details:", error);
         return NextResponse.json({ error: "An error occurred while saving income details" }, { status: 500 });
