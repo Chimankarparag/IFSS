@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
 
         const { email, cppServerUrl } = await request.json();
 
+
         if (!email || !cppServerUrl) {
             return NextResponse.json({ message: "Email and C++ server URL are required!" }, { status: 400 });
         }
@@ -43,8 +44,15 @@ export async function POST(request: NextRequest) {
             taxSaving: taxSaving || {},
         };
 
+        console.log("Current userData:", userData);
+
         // Send the data to the C++ server
-        const cppResponse = await axios.post(cppServerUrl, userData);
+        const cppResponse = await axios.post(
+            "http://127.0.0.1:5000/api/calculate",
+            userData
+          );
+
+        console.log("C++ server response:", cppResponse.data);
 
         // Return the response from the C++ server
         return NextResponse.json({ message: "Data processed successfully!", cppResponse: cppResponse.data }, { status: 200 });
