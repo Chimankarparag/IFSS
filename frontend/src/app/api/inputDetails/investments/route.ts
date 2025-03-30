@@ -19,22 +19,22 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
+        // Ensure all fields in investments have default values of 0
+        const defaultInvestments = {
+            stocks: investments.stocks || 0,
+            mutualFunds: investments.mutualFunds || 0,
+            fd: investments.fd || 0,
+            ppf: investments.ppf || 0,
+            completed: investments.completed || false,
+            progress: investments.progress || 0,
+        };
+
         // Find and update existing investment details or create a new one
         const updatedInvestments = await Investments.findOneAndUpdate(
             { user: user._id }, // Find investment details by user ID
             {
-                // Update fields
                 user: user._id,
-
-                // Investment Details
-                stocks: investments.stocks,
-                mutualFunds: investments.mutualFunds,
-                fd: investments.fd,
-                ppf: investments.ppf,
-
-                // Completion and Progress
-                completed: investments.completed,
-                progress: investments.progress,
+                ...defaultInvestments, // Use the default investments object
             },
             { new: true, upsert: true } // Create a new document if none exists
         );

@@ -19,33 +19,37 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
+        // Ensure all fields in deductions have default values of 0
+        const defaultDeductions = {
+            section80C: deductions.section80C || 0,
+            section80CCC: deductions.section80CCC || 0,
+            section80CCD1: deductions.section80CCD1 || 0,
+            section80CCD1B: deductions.section80CCD1B || 0,
+            section80CCD2: deductions.section80CCD2 || 0,
+            section80D: deductions.section80D || 0,
+            section80DD: deductions.section80DD || 0,
+            section80DDB: deductions.section80DDB || 0,
+            section80E: deductions.section80E || 0,
+            section80EE: deductions.section80EE || 0,
+            section80EEA: deductions.section80EEA || 0,
+            section80EEB: deductions.section80EEB || 0,
+            section80G: deductions.section80G || 0,
+            section80GG: deductions.section80GG || 0,
+            section80GGA: deductions.section80GGA || 0,
+            section80GGC: deductions.section80GGC || 0,
+            section80TTA: deductions.section80TTA || 0,
+            section80TTB: deductions.section80TTB || 0,
+            section80U: deductions.section80U || 0,
+            completed: deductions.completed,
+            progress: deductions.progress,
+        };
+
         // Find and update existing deductions or create a new one
         const updatedDeductions = await Deductions.findOneAndUpdate(
             { user: user._id }, // Find deductions by user ID
             {
-                // Update fields
                 user: user._id,
-                section80C: deductions.section80C,
-                section80CCC: deductions.section80CCC,
-                section80CCD1: deductions.section80CCD1,
-                section80CCD1B: deductions.section80CCD1B,
-                section80CCD2: deductions.section80CCD2,
-                section80D: deductions.section80D,
-                section80DD: deductions.section80DD,
-                section80DDB: deductions.section80DDB,
-                section80E: deductions.section80E,
-                section80EE: deductions.section80EE,
-                section80EEA: deductions.section80EEA,
-                section80EEB: deductions.section80EEB,
-                section80G: deductions.section80G,
-                section80GG: deductions.section80GG,
-                section80GGA: deductions.section80GGA,
-                section80GGC: deductions.section80GGC,
-                section80TTA: deductions.section80TTA,
-                section80TTB: deductions.section80TTB,
-                section80U: deductions.section80U,
-                completed: deductions.completed,
-                progress: deductions.progress,
+                ...defaultDeductions, // Use the default deductions object
             },
             { new: true, upsert: true } // Create a new document if none exists
         );

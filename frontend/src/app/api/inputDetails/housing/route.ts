@@ -19,23 +19,23 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
+        // Ensure all fields in housing have default values of 0 or false
+        const defaultHousing = {
+            interestSelfOccupied: housing.interestSelfOccupied || 0,
+            rentalIncome: housing.rentalIncome || 0,
+            municipalTaxes: housing.municipalTaxes || 0,
+            unrealisedRent: housing.unrealisedRent || 0,
+            interestLetOut: housing.interestLetOut || 0,
+            completed: housing.completed || false,
+            progress: housing.progress || 0,
+        };
+
         // Find and update existing housing details or create a new one
         const updatedHousing = await Housing.findOneAndUpdate(
             { user: user._id }, // Find housing details by user ID
             {
-                // Update fields
                 user: user._id,
-
-                // Housing Details
-                interestSelfOccupied: housing.interestSelfOccupied,
-                rentalIncome: housing.rentalIncome,
-                municipalTaxes: housing.municipalTaxes,
-                unrealisedRent: housing.unrealisedRent,
-                interestLetOut: housing.interestLetOut,
-
-                // Completion and Progress
-                completed: housing.completed,
-                progress: housing.progress,
+                ...defaultHousing, // Use the default housing object
             },
             { new: true, upsert: true } // Create a new document if none exists
         );

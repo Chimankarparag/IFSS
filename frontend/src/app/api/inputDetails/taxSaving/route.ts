@@ -19,24 +19,24 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
+        // Ensure all fields in taxSaving have default values of 0 or false
+        const defaultTaxSaving = {
+            TDSpaid: taxSaving.TDSpaid || 0,
+            advancetaxJune: taxSaving.advancetaxJune || 0,
+            advancetaxSept: taxSaving.advancetaxSept || 0,
+            advancetaxDec: taxSaving.advancetaxDec || 0,
+            advancetaxMar: taxSaving.advancetaxMar || 0,
+            monthOfItrFiling: taxSaving.monthOfItrFiling || 0,
+            completed: taxSaving.completed || false,
+            progress: taxSaving.progress || 0,
+        };
+
         // Find and update existing tax saving details or create a new one
         const updatedTaxSaving = await TaxSaving.findOneAndUpdate(
             { user: user._id }, // Find tax saving details by user ID
             {
-                // Update fields
                 user: user._id,
-
-                // Tax Saving Details
-                TDSpaid: taxSaving.TDSpaid,
-                advancetaxJune: taxSaving.advancetaxJune,
-                advancetaxSept: taxSaving.advancetaxSept,
-                advancetaxDec: taxSaving.advancetaxDec,
-                advancetaxMar: taxSaving.advancetaxMar,
-                monthOfItrFiling: taxSaving.monthOfItrFiling,
-
-                // Completion and Progress
-                completed: taxSaving.completed,
-                progress: taxSaving.progress,
+                ...defaultTaxSaving, // Use the default tax saving object
             },
             { new: true, upsert: true } // Create a new document if none exists
         );

@@ -198,6 +198,11 @@ const TaxFilingDashboard = (params: any) => {
         }),
       });
 
+      if (response.status === 404) {
+        // If no data exists
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to fetch salary details');
       }
@@ -253,6 +258,10 @@ const TaxFilingDashboard = (params: any) => {
         }),
       });
 
+      if (response.status === 404) {
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to fetch deduction details');
       }
@@ -307,6 +316,10 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
+
+      if (response.status === 404) {
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch housing details');
@@ -364,6 +377,10 @@ const TaxFilingDashboard = (params: any) => {
         }),
       });
 
+      if (response.status === 404) {
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to fetch investment details');
       }
@@ -420,6 +437,10 @@ const TaxFilingDashboard = (params: any) => {
         }),
       });
 
+      if (response.status === 404) {
+        return;
+      }
+
       if (!response.ok) {
         throw new Error('Failed to fetch other sources details');
       }
@@ -475,6 +496,10 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
+
+      if (response.status === 404) {
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch tax savings details');

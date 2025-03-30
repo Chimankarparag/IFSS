@@ -19,29 +19,29 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
+        // Ensure all fields in otherSources have default values of 0
+        const defaultOtherSources = {
+            interestSavings: otherSources.interestSavings || 0,
+            interestSecurities: otherSources.interestSecurities || 0,
+            otherInterest: otherSources.otherInterest || 0,
+            commissionIncome: otherSources.commissionIncome || 0,
+            dividendIncome: otherSources.dividendIncome || 0,
+            lotteryWinnings: otherSources.lotteryWinnings || 0,
+            familyPension: otherSources.familyPension || 0,
+            unexplainedIncome: otherSources.unexplainedIncome || 0,
+            patentRoyalty: otherSources.patentRoyalty || 0,
+            carbonCredit: otherSources.carbonCredit || 0,
+            prematurePF: otherSources.prematurePF || 0,
+            completed: otherSources.completed || false,
+            progress: otherSources.progress || 0,
+        };
+
         // Find and update existing other sources details or create a new one
         const updatedOtherSources = await OtherSources.findOneAndUpdate(
             { user: user._id }, // Find other sources details by user ID
             {
-                // Update fields
                 user: user._id,
-
-                // Other Sources Income Details
-                interestSavings: otherSources.interestSavings,
-                interestSecurities: otherSources.interestSecurities,
-                otherInterest: otherSources.otherInterest,
-                commissionIncome: otherSources.commissionIncome,
-                dividendIncome: otherSources.dividendIncome,
-                lotteryWinnings: otherSources.lotteryWinnings,
-                familyPension: otherSources.familyPension,
-                unexplainedIncome: otherSources.unexplainedIncome,
-                patentRoyalty: otherSources.patentRoyalty,
-                carbonCredit: otherSources.carbonCredit,
-                prematurePF: otherSources.prematurePF,
-
-                // Completion and Progress
-                completed: otherSources.completed,
-                progress: otherSources.progress,
+                ...defaultOtherSources, // Use the default other sources object
             },
             { new: true, upsert: true } // Create a new document if none exists
         );
