@@ -606,7 +606,23 @@ const TaxFilingDashboard = (params: any) => {
 
   const Calculate = async () => {
     try{
+      const response = await fetch('/api/inputDetails/calculate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error('Failed to calculate ITR');
+      }
+
+      const result = await response.json();
+
+      console.log(result)
       
     }catch(error){
       console.error("Error calculating tax:", error);

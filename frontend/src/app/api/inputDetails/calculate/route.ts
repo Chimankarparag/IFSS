@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
 
         const { email, cppServerUrl } = await request.json();
 
-        if (!email || !cppServerUrl) {
-            return NextResponse.json({ message: "Email and C++ server URL are required!" }, { status: 400 });
+        if (!email) {
+            return NextResponse.json({ message: "Email is required!" }, { status: 400 });
         }
 
         const user = await User.findOne({ email: email });
