@@ -1,4 +1,4 @@
-import React, { JSX, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { Check, AlertCircle, ArrowRight, ArrowLeft, Home, Briefcase, DollarSign, Leaf, PiggyBank, Library } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -338,13 +338,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to save investment details');
       }
-  
+
       const result = await response.json();
-  
+
       setActiveModal(null);
       toast.success('Investment details saved successfully!');
     } catch (error) {
@@ -363,13 +363,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch investment details');
       }
-  
+
       const result = await response.json();
-  
+
       setFormData(prev => ({
         ...prev,
         investments: {
@@ -394,13 +394,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to save other sources details');
       }
-  
+
       const result = await response.json();
-  
+
       setActiveModal(null);
       toast.success('Other sources details saved successfully!');
     } catch (error) {
@@ -419,13 +419,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch other sources details');
       }
-  
+
       const result = await response.json();
-  
+
       setFormData(prev => ({
         ...prev,
         otherSources: {
@@ -450,13 +450,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to save tax savings details');
       }
-  
+
       const result = await response.json();
-  
+
       setActiveModal(null);
       toast.success('Tax savings details saved successfully!');
     } catch (error) {
@@ -475,13 +475,13 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch tax savings details');
       }
-  
+
       const result = await response.json();
-  
+
       setFormData(prev => ({
         ...prev,
         taxSaving: {
@@ -496,11 +496,26 @@ const TaxFilingDashboard = (params: any) => {
 
   const fetchData = async () => {
     try {
-      // 
-    } catch (error) {
+      // Fetch all data in parallel
+      await Promise.all([
+        fetchDeductions(),
+        fetchSalary(),
+        fetchHousing(),
+        fetchInvestments(),
+        fetchOtherSources(),
+        fetchTaxSavings(),
+      ]);
 
+      toast.success("All data fetched successfully!");
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to fetch all data. Please try again.");
     }
-  }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Function to update form data
   const updateFormData = (category: keyof typeof formData, field: string, value: string | number | boolean) => {
@@ -511,6 +526,28 @@ const TaxFilingDashboard = (params: any) => {
         [field]: value
       }
     }));
+  };
+
+  const handleFormUpdate = async () => {
+    try {
+      // Save updated data
+      await Promise.all([
+        setDeductions(),
+        setSalary(),
+        setHousing(),
+        setInvestments(),
+        setOtherSources(),
+        setTaxSavings(),
+      ]);
+
+      // Fetch updated data
+      await fetchData();
+
+      toast.success("Form updated and data refreshed successfully!");
+    } catch (error) {
+      console.error("Error updating form data:", error);
+      toast.error("Failed to update form data. Please try again.");
+    }
   };
 
   // Function to calculate progress for a category
@@ -560,10 +597,9 @@ const TaxFilingDashboard = (params: any) => {
     }
     // Here you would typically save data via API
     if (activeModal) {
-      if (activeModal) {
-        console.log(`Submitting data for ${activeModal}:`, formData[activeModal]);
-      }
+      console.log(`Submitting data for ${activeModal}:`, formData[activeModal]);
     }
+    handleFormUpdate();
     setActiveModal(null);
     setCurrentStep(1);
   };
