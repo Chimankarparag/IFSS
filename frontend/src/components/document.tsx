@@ -18,6 +18,9 @@ const TaxFilingDashboard = (params: any) => {
 
   const data = params.user;
   // State for handling active modal, selected category, and completion status
+  const [calculationResult, setCalculationResult] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<keyof typeof formData | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -156,6 +159,7 @@ const TaxFilingDashboard = (params: any) => {
     taxPaid: number,
     otherSources: number,
   });
+  
 
   const setSalary = async () => {
     try {
@@ -563,6 +567,15 @@ const TaxFilingDashboard = (params: any) => {
     setActiveModal(null);
     setCurrentStep(1);
   };
+
+  const Calculate = async () => {
+    try{
+
+      
+    }catch(error){
+      console.error("Error calculating tax:", error);
+    }
+  }
 
   // Define the tax category cards
   type FormDataCategory = keyof typeof formData;
@@ -1777,9 +1790,23 @@ const TaxFilingDashboard = (params: any) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="flex justify-center mt-6">
+  <Button
+  onClick={Calculate}
+    className="bg-black text-white px-6 py-3 rounded-lg shadow-lg hover:bg-white hover:text-black border border-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+  >
+    Calculate
+  </Button>
+</div>
+
+
+
     </div>
   );
 };
+
+
 
 // The missing icon components
 const CustomPiggyBank = ({ className }: { className: string }) => {
@@ -1824,6 +1851,8 @@ const CustomLibrary = ({ className }: { className: string }) => {
     </svg>
   );
 };
+
+
 
 const InputField = ({
   label,

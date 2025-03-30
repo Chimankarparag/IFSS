@@ -277,9 +277,8 @@ json output = {
         {"amountPayable", taxCalc.amountPayable()},
         {"refundableAmount", taxCalc.refundableAmount()}
     }}
-};
-        
-        std::cout << output.dump(4);
+};     
+    std::cout << output.dump(4);
         
     } catch (const std::exception& e) {
         json error = {{"error", e.what()}};
