@@ -513,9 +513,9 @@ const TaxFilingDashboard = (params: any) => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
 
   // Function to update form data
   const updateFormData = (category: keyof typeof formData, field: string, value: string | number | boolean) => {
@@ -624,10 +624,36 @@ const TaxFilingDashboard = (params: any) => {
 
       console.log(result)
       
+      
     }catch(error){
       console.error("Error calculating tax:", error);
     }
   }
+
+  const handleHello = async () => {
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/inputDetails/calculate', {
+        method: "GET",
+
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert(result.action); // Show the hello message from server
+
+      
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to get hello message");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Define the tax category cards
   type FormDataCategory = keyof typeof formData;
@@ -1833,8 +1859,11 @@ const TaxFilingDashboard = (params: any) => {
               onClick={() => {
                 updateFormData('taxSaving', 'completed', true);
                 updateFormData('taxSaving', 'progress', 100);
+                handleSubmit();
                 handleCloseModal();
+                
               }}
+             
             >
               <Check className="mr-2 h-4 w-4" />
               Save Tax Details
@@ -1849,6 +1878,14 @@ const TaxFilingDashboard = (params: any) => {
     className="bg-black text-white px-6 py-3 rounded-lg shadow-lg hover:bg-white hover:text-black border border-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
   >
     Calculate
+  </Button>
+</div>
+<div>
+<Button
+  onClick={handleHello}
+    className="bg-black text-white px-6 py-3 rounded-lg shadow-lg hover:bg-white hover:text-black border border-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+  >
+    Check Backend server
   </Button>
 </div>
 

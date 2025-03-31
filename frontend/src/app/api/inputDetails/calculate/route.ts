@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     try {
         await connect(); // Connect to the database
 
-        const { email, cppServerUrl } = await request.json();
+        const { email } = await request.json();
 
 
         if (!email) {
@@ -59,5 +59,28 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Error processing data:", error);
         return NextResponse.json({ error: "An error occurred while processing data" }, { status: 500 });
+    }
+}
+
+export async function GET(request: NextRequest) {
+    try {
+        // Parse the request body
+        const  action = "Hello";
+
+        // Send a request to the C++ server
+        const cppResponse = await axios.post("http://127.0.0.1:5000/api/hello", {
+            action: "Route says Server is Active", // Trigger the "hello" action on the C++ server
+        });
+
+        // Check if the response is successful
+        if (cppResponse.status !== 200) {
+            throw new Error(`C++ server error! Status: ${cppResponse.status}`);
+        }
+
+        // Return the response from the C++ server
+        return NextResponse.json({ action: cppResponse.data.action }, { status: 200 });
+    } catch (error) {
+        console.error("Error in PUT request:", error);
+        return NextResponse.json({ error: "Failed to process the hello action" }, { status: 500 });
     }
 }
