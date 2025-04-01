@@ -32,9 +32,14 @@ int main() {
         for (std::string line; std::getline(std::cin, line); input += line);
         json formData = json::parse(input);
 
+        // json formData;
+        // std::cin >> formData;
+        // json output = formData;
+        // std::cout << output.dump(4);
+
         // Populate Salary from income data
         Salary salary;
-        const auto& income = formData["income"];
+        const auto& income = formData["salary"];
         salary.basicSalary = income["basicSalary"].get<double>();
         salary.pension = income["pension"].get<double>();
         salary.dearnessAllowance = income["dearnessAllowance"].get<double>();
@@ -47,6 +52,7 @@ int main() {
         salary.entertainmentAllowance = income["entertainmentAllowance"].get<double>();
         salary.professionalTax = income["professionalTax"].get<double>();
         salary.otherComponents = income["otherComponents"].get<double>();
+
 
         // Populate EmployeeDetails
         EmployeeDetails empDetails;
@@ -277,7 +283,8 @@ json output = {
         {"amountPayable", taxCalc.amountPayable()},
         {"refundableAmount", taxCalc.refundableAmount()}
     }}
-};     
+}; 
+  
     std::cout << output.dump(4);
         
     } catch (const std::exception& e) {

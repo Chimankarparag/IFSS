@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     try {
         await connect(); // Connect to the database
 
-        const { email, cppServerUrl } = await request.json();
+        const { email } = await request.json();
 
         if (!email) {
             return NextResponse.json({ message: "Email is required!" }, { status: 400 });
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
         // Send the data to the C++ server
         const cppResponse = await axios.post(
-            cppServerUrl || "http://127.0.0.1:5000/api/calculate",
+            "http://127.0.0.1:5000/api/calculate",
             userData
         );
 
