@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        const deductionDetails = await Deductions.findOne({ user: user._id }).select('-user'); // Fetch deduction details excluding the user field
+        const deductionDetails = await Deductions.findOne({ user: user._id }).select('-user -_id -__v'); // Fetch deduction details excluding the user field
 
         if (!deductionDetails) {
             return NextResponse.json({ message: "Unable to fetch Data" }, { status: 404 });

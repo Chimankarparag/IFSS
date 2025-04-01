@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: "User Doesn't Exist" }, { status: 401 });
         }
 
-        const investmentDetails = await Investments.findOne({ user: user._id }).select('-user'); // Fetch investment details excluding the user field
+        const investmentDetails = await Investments.findOne({ user: user._id }).select('-user -_id -__v'); // Fetch investment details excluding the user field
 
         if (!investmentDetails) {
             return NextResponse.json({ message: "Unable to fetch Data" }, { status: 404 });

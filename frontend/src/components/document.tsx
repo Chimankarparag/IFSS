@@ -14,6 +14,7 @@ import { number } from 'zod';
 import Deductions from '@/models/inputDetails/deductionsModel';
 import toast from 'react-hot-toast';
 import ITRSummaryCard from './ITRSummaryCard';
+import { Progress } from "@radix-ui/react-progress";
 
 const TaxFilingDashboard = (params: any) => {
 
@@ -213,29 +214,81 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-
+  
       if (response.status === 404) {
         // If no data exists
         return;
       }
-
+  
       if (!response.ok) {
         throw new Error('Failed to fetch salary details');
       }
-
+  
       const result = await response.json();
-
-      setFormData(prev => ({
-        ...prev,
-        income: {
-          ...prev.income,
-          ...result.incomeDetails,
-        },
-      }));
+      
+      // Update form data with the result
+      setFormData(prev => {
+        const updatedData = {
+          ...prev,
+          income: {
+            ...prev.income,
+            basicSalary: result.basicSalary?.toString() || "",
+            pension: result.pension?.toString() || "",
+            dearnessAllowance: result.dearnessAllowance?.toString() || "",
+            bonusCommissions: result.bonusCommissions?.toString() || "",
+            advanceSalary: result.advanceSalary?.toString() || "",
+            arrearsSalary: result.arrearsSalary?.toString() || "",
+            leaveEncashment: result.leaveEncashment?.toString() || "",
+            gratuity: result.gratuity?.toString() || "",
+            hraReceived: result.hraReceived?.toString() || "",
+            entertainmentAllowance: result.entertainmentAllowance?.toString() || "",
+            professionalTax: result.professionalTax?.toString() || "",
+            otherComponents: result.otherComponents?.toString() || "",
+            rentPaid: result.rentPaid?.toString() || "",
+            isMetro: result.isMetro ?? false,
+            ltaClaimed: result.ltaClaimed?.toString() || "",
+            childrenEducation: result.childrenEducation?.toString() || "",
+            hostelAllowance: result.hostelAllowance?.toString() || "",
+            transportAllowance: result.transportAllowance?.toString() || "",
+            totalPension: result.totalPension?.toString() || "",
+            commutedPension: result.commutedPension?.toString() || "",
+            vrsCompensation: result.vrsCompensation?.toString() || "",
+            rentFreeAccommodation: result.rentFreeAccommodation?.toString() || "",
+            concessionInRent: result.concessionInRent?.toString() || "",
+            companyCar: result.companyCar?.toString() || "",
+            freeUtilities: result.freeUtilities?.toString() || "",
+            medicalFacilities: result.medicalFacilities?.toString() || "",
+            interestFreeLoans: result.interestFreeLoans?.toString() || "",
+            esops: result.esops?.toString() || "",
+            educationExpenses: result.educationExpenses?.toString() || "",
+            terminationCompensation: result.terminationCompensation?.toString() || "",
+            retirementCompensation: result.retirementCompensation?.toString() || "",
+            vrsAmount: result.vrsAmount?.toString() || "",
+            keymanInsurance: result.keymanInsurance?.toString() || "",
+            preEmploymentPayments: result.preEmploymentPayments?.toString() || "",
+            postResignationPayments: result.postResignationPayments?.toString() || "",
+            foreignRetirementNotified: result.foreignRetirementNotified?.toString() || "",
+            foreignRetirementNonNotified: result.foreignRetirementNonNotified?.toString() || "",
+            section89AWithdrawal: result.section89AWithdrawal?.toString() || "",
+            isGovernmentEmployee: result.isGovernmentEmployee ?? false,
+            employeeAge: result.employeeAge?.toString() || "",
+            hasGratuity: result.hasGratuity ?? false,
+            unusedLeaves: result.unusedLeaves?.toString() || "",
+            isRetiring: result.isRetiring ?? false,
+            underOldTaxRegime: result.underOldTaxRegime ?? false,
+            completed: result.completed ?? false,
+            progress: result.progress ?? 0
+          }
+        };
+        
+        return updatedData;
+      });
+  
     } catch (error) {
       console.error('Error fetching salary details:', error);
     }
   };
+  
 
   const setDeductions = async () => {
     try {
@@ -288,7 +341,7 @@ const TaxFilingDashboard = (params: any) => {
         ...prev,
         deductions: {
           ...prev.deductions,
-          ...result.deductionDetails,
+          ...result,
         },
       }));
     } catch (error) {
@@ -347,7 +400,7 @@ const TaxFilingDashboard = (params: any) => {
         ...prev,
         housing: {
           ...prev.housing,
-          ...result.housing,
+          ...result,
         },
       }));
     } catch (error) {
@@ -407,7 +460,7 @@ const TaxFilingDashboard = (params: any) => {
         ...prev,
         investments: {
           ...prev.investments,
-          ...result.investments,
+          ...result,
         },
       }));
     } catch (error) {
@@ -467,7 +520,7 @@ const TaxFilingDashboard = (params: any) => {
         ...prev,
         otherSources: {
           ...prev.otherSources,
-          ...result.otherSources,
+          ...result,
         },
       }));
     } catch (error) {
@@ -527,7 +580,7 @@ const TaxFilingDashboard = (params: any) => {
         ...prev,
         taxSaving: {
           ...prev.taxSaving,
-          ...result.taxSaving,
+          ...result,
         },
       }));
     } catch (error) {
@@ -647,6 +700,7 @@ const TaxFilingDashboard = (params: any) => {
 
   const Calculate = async () => {
     try {
+      setIsLoading(true)
       const response = await fetch('/api/inputDetails/calculate', {
         method: 'POST',
         headers: {
@@ -670,6 +724,8 @@ const TaxFilingDashboard = (params: any) => {
 
     } catch (error) {
       console.error("Error calculating tax:", error);
+    }finally {
+      setIsLoading(false); // Hide loader
     }
   }
 
@@ -1916,19 +1972,23 @@ const TaxFilingDashboard = (params: any) => {
       </Dialog>
 
       <div className="flex justify-center mt-8 mb-6">
-        <Button
-          onClick={Calculate}
-          className="bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 px-6 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-950"
-        >
-          <CalculatorIcon className="h-4 w-4" />
-          Calculate Tax
-        </Button>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <Button
+            onClick={Calculate}
+            className="bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 px-6 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-950"
+          >
+            <CalculatorIcon className="h-4 w-4" />
+            Calculate Tax
+          </Button>
+        )}
       </div>
 
       {/* ITR Summary Card Container - Improved Layout */}
       {calculate ? (
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
-          <ITRSummaryCard summaryData={sampleITRSummaryData} />
+          <ITRSummaryCard summaryData={summary} />
         </div>
       ) : null}
 
@@ -2057,6 +2117,16 @@ const InputField = ({
           }
         }}
       />
+    </div>
+  );
+};
+
+const Loader = () => {
+  return (
+    <div className="flex items-center justify-center h-16">
+      <div className="relative w-16 h-16">
+        <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent animate-spin"></div>
+      </div>
     </div>
   );
 };
