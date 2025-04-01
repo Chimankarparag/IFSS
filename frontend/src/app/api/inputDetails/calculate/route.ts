@@ -82,27 +82,34 @@ export async function POST(request: NextRequest) {
 async function generateITRSummaryWithOpenAI(cppData: any) {
     try {
         const prompt = `
-            Based on the following tax calculation data, generate a concise ITR summary:
-            Data: ${JSON.stringify(cppData)}
-            Provide the summary in the following format:
-            - Concise Deductions availed Summary : [Summary]
-            - Total Income: [value]
-            - Total Deductions: [value]
-            - Taxable Income: [value]
-            - Tax Liability: [value]
-            - Tax Paid: [value]
-            - Refund: [value]
+            Analyze this tax data and provide a detailed ITR summary:
+            ${JSON.stringify(cppData)}
+            
+            Format your response as a structured JSON with:
+            1. A concise paragraph summarizing key deductions claimed
+            2. A breakdown with exact figures for:
+               - Total Income
+               - Total Deductions (with category-wise breakdown)
+               - Taxable Income
+               - Tax Liability
+               - Tax Paid
+               - Refund Amount (if applicable)
+               - Tax Saving Opportunities
+            
+            Return ONLY valid JSON without additional text.
         `;
 
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" },
+            temperature: 0.3, // Lower temperature for more consistent results
         });
 
         const summary = response.choices[0]?.message?.content || "Unable to generate summary.";
-        return summary;
+        return JSON.parse(summary);
     } catch (error) {
         console.error("Error generating ITR summary with OpenAI:", error);
-        return "Error generating ITR summary.";
+        return { error: "Error generating ITR summary." };
     }
 }

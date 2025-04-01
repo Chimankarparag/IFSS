@@ -30,14 +30,14 @@ def hello():
         
         print("Parsed JSON output:", output_data)
               
-        return jsonify(output_data)
+        # return jsonify(output_data)
 
         # Return a JSON response with hello message
         
-        # return jsonify({
-        #     "message": "Server is working fine!",
-        #     "alert": "This is a hello alert from the server!"
-        # }), 200
+        return jsonify({
+            "message": "Server is working fine!",
+            "alert": "This is a hello alert from the server!"
+        }), 200
         
     except Exception as e:
         return jsonify({

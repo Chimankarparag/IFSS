@@ -1,5 +1,5 @@
 import React, { JSX, useEffect, useState } from 'react';
-import { Check, AlertCircle, ArrowRight, ArrowLeft, Home, Briefcase, DollarSign, Leaf, PiggyBank, Library } from 'lucide-react';
+import { Check, AlertCircle, ArrowRight, ArrowLeft, Home, Briefcase, DollarSign, Leaf, PiggyBank, Library, CalculatorIcon } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { number } from 'zod';
 import Deductions from '@/models/inputDetails/deductionsModel';
 import toast from 'react-hot-toast';
+import ITRSummaryCard from './ITRSummaryCard';
 
 const TaxFilingDashboard = (params: any) => {
 
@@ -152,6 +153,7 @@ const TaxFilingDashboard = (params: any) => {
     }
   });
   const [calculate, setCalculate] = useState(false);
+  const [summary, setSummary] = useState({});
   const [displayOutput, setDisplayOutput] = useState({
     salary: number,
     deductions: number,
@@ -160,7 +162,20 @@ const TaxFilingDashboard = (params: any) => {
     taxPaid: number,
     otherSources: number,
   });
-  
+
+  const sampleITRSummaryData = {
+    "deductionsSummary": "You've optimized tax savings through Section 80C (₹1,50,000) with investments in PPF and ELSS, Section 80D health insurance (₹25,000), NPS contributions under 80CCD(1B) (₹50,000), and home loan interest under Section 24 (₹2,00,000). These strategic deductions have reduced your taxable income by approximately 28%.",
+
+    "totalIncome": 1450000,
+    "totalDeductions": 425000,
+    "taxableIncome": 1025000,
+    "taxLiability": 128750,
+    "taxPaid": 145000,
+    "refundAmount": 16250,
+
+    "taxSavingOpportunities": "Consider maximizing ELSS investments to reach the full 80C limit. You could also explore additional tax savings through digital subscription to specified periodicals under Section 80GGC (up to ₹5,000) and increasing your NPS contribution as it offers tax benefits under multiple sections."
+  };
+
 
   const setSalary = async () => {
     try {
@@ -631,7 +646,7 @@ const TaxFilingDashboard = (params: any) => {
   };
 
   const Calculate = async () => {
-    try{
+    try {
       const response = await fetch('/api/inputDetails/calculate', {
         method: 'POST',
         headers: {
@@ -648,9 +663,12 @@ const TaxFilingDashboard = (params: any) => {
 
       const result = await response.json();
 
+      setSummary(result.itrSummary);
+      setCalculate(true);
+
       console.log(result)
-      
-    }catch(error){
+
+    } catch (error) {
       console.error("Error calculating tax:", error);
     }
   }
@@ -658,7 +676,7 @@ const TaxFilingDashboard = (params: any) => {
   const handleHello = async () => {
     try {
       setIsLoading(true);
-      
+
       const response = await fetch('/api/inputDetails/calculate', {
         method: "GET",
 
@@ -671,7 +689,7 @@ const TaxFilingDashboard = (params: any) => {
       const result = await response.json();
       alert(result.action); // Show the hello message from server
 
-      
+
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to get hello message");
@@ -1886,9 +1904,9 @@ const TaxFilingDashboard = (params: any) => {
                 updateFormData('taxSaving', 'progress', 100);
                 handleSubmit();
                 handleCloseModal();
-                
+
               }}
-             
+
             >
               <Check className="mr-2 h-4 w-4" />
               Save Tax Details
@@ -1897,24 +1915,22 @@ const TaxFilingDashboard = (params: any) => {
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-center mt-6">
-  <Button
-  onClick={Calculate}
-    className="bg-black text-white px-6 py-3 rounded-lg shadow-lg hover:bg-white hover:text-black border border-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
-  >
-    Calculate
-  </Button>
-</div>
-<div>
-<Button
-  onClick={handleHello}
-    className="bg-black text-white px-6 py-3 rounded-lg shadow-lg hover:bg-white hover:text-black border border-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
-  >
-    Check Backend server
-  </Button>
-</div>
+      <div className="flex justify-center mt-8 mb-6">
+        <Button
+          onClick={Calculate}
+          className="bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 px-6 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-950"
+        >
+          <CalculatorIcon className="h-4 w-4" />
+          Calculate Tax
+        </Button>
+      </div>
 
-
+      {/* ITR Summary Card Container - Improved Layout */}
+      {calculate ? (
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
+          <ITRSummaryCard summaryData={sampleITRSummaryData} />
+        </div>
+      ) : null}
 
     </div>
   );
