@@ -151,6 +151,7 @@ const TaxFilingDashboard = (params: any) => {
       progress: 0
     }
   });
+  const [calculate, setCalculate] = useState(false);
   const [displayOutput, setDisplayOutput] = useState({
     salary: number,
     deductions: number,
@@ -538,9 +539,9 @@ const TaxFilingDashboard = (params: any) => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Function to update form data
   const updateFormData = (category: keyof typeof formData, field: string, value: string | number | boolean) => {
@@ -648,7 +649,6 @@ const TaxFilingDashboard = (params: any) => {
       const result = await response.json();
 
       console.log(result)
-      
       
     }catch(error){
       console.error("Error calculating tax:", error);

@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
 
         const { email } = await request.json();
 
+
         if (!email) {
             return NextResponse.json({ message: "Email is required!" }, { status: 400 });
         }
@@ -84,6 +85,7 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
             Based on the following tax calculation data, generate a concise ITR summary:
             Data: ${JSON.stringify(cppData)}
             Provide the summary in the following format:
+            - Concise Deductions availed Summary : [Summary]
             - Total Income: [value]
             - Total Deductions: [value]
             - Taxable Income: [value]
