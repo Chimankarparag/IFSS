@@ -163,19 +163,7 @@ const TaxFilingDashboard = (params: any) => {
     taxPaid: number,
     otherSources: number,
   });
-
-  const sampleITRSummaryData = {
-    "deductionsSummary": "You've optimized tax savings through Section 80C (₹1,50,000) with investments in PPF and ELSS, Section 80D health insurance (₹25,000), NPS contributions under 80CCD(1B) (₹50,000), and home loan interest under Section 24 (₹2,00,000). These strategic deductions have reduced your taxable income by approximately 28%.",
-
-    "totalIncome": 1450000,
-    "totalDeductions": 425000,
-    "taxableIncome": 1025000,
-    "taxLiability": 128750,
-    "taxPaid": 145000,
-    "refundAmount": 16250,
-
-    "taxSavingOpportunities": "Consider maximizing ELSS investments to reach the full 80C limit. You could also explore additional tax savings through digital subscription to specified periodicals under Section 80GGC (up to ₹5,000) and increasing your NPS contribution as it offers tax benefits under multiple sections."
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const setSalary = async () => {
@@ -214,18 +202,18 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-  
+
       if (response.status === 404) {
         // If no data exists
         return;
       }
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch salary details');
       }
-  
+
       const result = await response.json();
-      
+
       // Update form data with the result
       setFormData(prev => {
         const updatedData = {
@@ -280,15 +268,15 @@ const TaxFilingDashboard = (params: any) => {
             progress: result.progress ?? 0
           }
         };
-        
+
         return updatedData;
       });
-  
+
     } catch (error) {
       console.error('Error fetching salary details:', error);
     }
   };
-  
+
 
   const setDeductions = async () => {
     try {
@@ -701,6 +689,7 @@ const TaxFilingDashboard = (params: any) => {
   const Calculate = async () => {
     try {
       setIsLoading(true)
+      const loadingToast = toast.loading("Calculating your ITR deductions...");
       const response = await fetch('/api/inputDetails/calculate', {
         method: 'POST',
         headers: {
@@ -710,7 +699,7 @@ const TaxFilingDashboard = (params: any) => {
           email: data.email,
         }),
       });
-
+      toast.dismiss(loadingToast);
       if (!response.ok) {
         throw new Error('Failed to calculate ITR');
       }
@@ -724,36 +713,123 @@ const TaxFilingDashboard = (params: any) => {
 
     } catch (error) {
       console.error("Error calculating tax:", error);
-    }finally {
+    } finally {
       setIsLoading(false); // Hide loader
     }
   }
 
-  const handleHello = async () => {
+  const messageCA = async () => {
+
+    // Validate required data before making API call
+    if (!formData || !summary) {
+      toast.error("Missing tax information. Please complete your tax details first.");
+      return;
+    }
+
+    if (!data.email) {
+      toast.error("User email is required. Please check your account settings.");
+      return;
+    }
+
     try {
-      setIsLoading(true);
+      // Show loading indicator
+      setIsSubmitting(true);
+      const loadingToast = toast.loading("Sending your tax information to a CA...");
 
-      const response = await fetch('/api/inputDetails/calculate', {
-        method: "GET",
-
+      const response = await fetch('/api/inputDetails/consult', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          itrSummary: summary,
+          itrDetails: formData
+        }),
       });
 
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      // Parse response
+      const result = await response.json();
+
+      // Handle different response statuses
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Show appropriate error based on status code
+        switch (response.status) {
+          case 400:
+            toast.error(result.message || "Missing or invalid information");
+            break;
+          case 403:
+            toast.error("You don't have permission to perform this action");
+            break;
+          case 404:
+            toast.error("User account not found");
+            break;
+          case 503:
+            toast.error(result.message || "CA service unavailable. Please try again later.");
+            break;
+          default:
+            toast.error(result.message || "Failed to send request to CA");
+        }
+        return;
       }
 
-      const result = await response.json();
-      alert(result.action); // Show the hello message from server
+      // Success case
+      toast.success(result.message || "Your tax information has been sent to a CA for review");
 
+      // If CA name is provided, show a more personalized message
+      if (result.caName) {
+        toast.success(`Your request has been assigned to ${result.caName}`);
+      }
+
+      // Optionally redirect to messages or dashboard page
+      // router.push('/messages');
 
     } catch (error) {
-      console.error("Error:", error);
-      alert("Failed to get hello message");
+      console.error("Error while sending message", error);
+      toast.error("Network error. Please check your connection and try again.");
     } finally {
-      setIsLoading(false);
+      // Reset loading state
+      setIsSubmitting(false);
     }
   };
 
+  // Button component with loading state
+  const ConsultCAButton = () => {
+    return (
+      <button
+        onClick={messageCA}
+        disabled={isSubmitting}
+        className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 ${isSubmitting ? 'cursor-not-allowed' : ''
+          }`}
+      >
+        {isSubmitting ? (
+          <>
+            <svg
+              className="mr-2 h-4 w-4 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            Connecting with CA...
+          </>
+        ) : (
+          "Consult with a CA"
+        )}
+      </button>
+
+    );
+  };
   // Define the tax category cards
   type FormDataCategory = keyof typeof formData;
 
@@ -1987,9 +2063,13 @@ const TaxFilingDashboard = (params: any) => {
 
       {/* ITR Summary Card Container - Improved Layout */}
       {calculate ? (
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
-          <ITRSummaryCard summaryData={summary} />
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
+        <ITRSummaryCard summaryData={summary} />
+
+        <div className="flex justify-end mt-4">
+          <ConsultCAButton />
         </div>
+      </div>
       ) : null}
 
     </div>

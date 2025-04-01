@@ -1,5 +1,6 @@
 import { stat } from "fs";
 import mongoose from "mongoose";
+import { number } from "zod";
 
 const caSchema = new mongoose.Schema({
     name: {
@@ -23,6 +24,14 @@ const caSchema = new mongoose.Schema({
         type: String,
         required: [true, "Password is required"],
         trim: true,
+    },
+    work: {
+        type: Number,
+        default: 0
+    },
+    workdone: {
+        type: Number,
+        default: 0
     },
     status: {
         type: String,

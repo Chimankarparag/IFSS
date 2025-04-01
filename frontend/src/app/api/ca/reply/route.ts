@@ -44,6 +44,11 @@ export async function POST(request: NextRequest) {
         if (!message) {
             return NextResponse.json({ message: "No messages found" }, { status: 404 });
         }
+
+        caExists.workdone = caExists.workdone + 1;
+        caExists.work = caExists.work - 1;
+
+        await caExists.save();
         
         message.isRead = true;
 

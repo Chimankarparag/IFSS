@@ -101,6 +101,8 @@ export default function AdminDashboardPage() {
         name: string;
         caId: string;
         email: string;
+        work: number;
+        workdone: number;
         status: string;
     }>>([]);
     const [activeSection, setActiveSection] = useState('messages');
@@ -139,41 +141,6 @@ export default function AdminDashboardPage() {
                 confirmPassword: ''
             });
 
-            // Mock messages data
-            const mockMessages = [
-                {
-                    id: 1,
-                    to: { id: 1, name: "Rahul Sharma", caId: "CA12345" },
-                    subject: "Account Verification Update",
-                    content: "Dear Rahul,\n\nWe have reviewed your documentation and verified your CA credentials. Your account has been fully approved.\n\nPlease let us know if you have any questions.\n\nRegards,\nAdmin Team",
-                    date: "2025-03-15T10:30:00",
-                    status: "delivered",
-                },
-                {
-                    id: 2,
-                    to: { id: 2, name: "Priya Patel", caId: "CA12346" },
-                    subject: "New Feature Announcement",
-                    content: "Hello Priya,\n\nWe're excited to announce that we've rolled out a new tax calculation feature that is now available on your dashboard. This feature will help you streamline your client's tax filings.\n\nFor any assistance, feel free to reach out.\n\nBest regards,\nAdmin Team",
-                    date: "2025-03-16T14:45:00",
-                    status: "delivered",
-                },
-                {
-                    id: 3,
-                    to: { id: 3, name: "Ajay Verma", caId: "CA12347" },
-                    subject: "Action Required: Additional Documents Needed",
-                    content: "Dear Ajay,\n\nWe need additional documentation to complete your CA verification process. Please upload your recent practice certificate and professional indemnity insurance details.\n\nThank you for your cooperation.\n\nRegards,\nAdmin Team",
-                    date: "2025-03-18T09:15:00",
-                    status: "unread",
-                },
-                {
-                    id: 4,
-                    to: { id: 4, name: "Neha Singh", caId: "CA12348" },
-                    subject: "Quarterly Compliance Update",
-                    content: "Hello Neha,\n\nThis is a reminder about the upcoming quarterly compliance updates. Please ensure all client filings are up to date by the end of this month.\n\nLet us know if you need any assistance.\n\nBest regards,\nAdmin Team",
-                    date: "2025-03-19T16:20:00",
-                    status: "unread",
-                },
-            ];
 
         } catch (error) {
             toast.error('Login First!');
@@ -201,6 +168,8 @@ export default function AdminDashboardPage() {
                 name: user.name || user.firstName + " " + user.lastName || "Unknown", // Default to "Unknown" if name is missing
                 caId: user.caId || user.caid || "N/A", // Default to "N/A" if caId is missing
                 email: user.email || "N/A", // Default to "N/A" if email is missing
+                work: user.work || 0, // Current clients/consultations assigned
+                workdone: user.workdone || 0, // Historical total consultations completed
                 status: user.status || "pending", // Default to "pending" if status is missing
             }));
 
@@ -365,7 +334,7 @@ export default function AdminDashboardPage() {
 
     useEffect(() => {
         fetchMessages();
-    },[]);
+    }, []);
 
     useEffect(() => {
         fetchCAUsers();
@@ -373,16 +342,16 @@ export default function AdminDashboardPage() {
 
     useEffect(() => {
         if (!caUsers || !messages) return;
-    
+
         setDashboardStats({
             totalCAs: caUsers.filter(ca => ca.status != 'pending').length,
             activeCAs: caUsers.filter(ca => ca.status === 'active').length,
             pendingCAs: caUsers.filter(ca => ca.status === 'pending').length,
             totalMessages: messages.length,
-            unreadMessages: messages.filter(msg => !msg.isRead).length, 
+            unreadMessages: messages.filter(msg => !msg.isRead).length,
         });
-    }, [caUsers, messages]); 
-    
+    }, [caUsers, messages]);
+
 
     const handleSendMessage = async () => {
         if (!newMessageSubject.trim() || !newMessageContent.trim() || !newMessageRecipient) {
@@ -413,7 +382,7 @@ export default function AdminDashboardPage() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({newMsg, Id: recipient._id, admin: adminData?.adminId}),
+                    body: JSON.stringify({ newMsg, Id: recipient._id, admin: adminData?.adminId }),
                 }
             );
 
@@ -426,7 +395,7 @@ export default function AdminDashboardPage() {
         } catch (error) {
             toast.error('Failed to send message!');
         }
-        
+
 
         setMessages([newMsg, ...messages]);
         setNewMessageOpen(false);
@@ -524,7 +493,7 @@ export default function AdminDashboardPage() {
             return;
         }
 
-        if (adminData && !adminData.newPassword && !adminData.confirmPassword){
+        if (adminData && !adminData.newPassword && !adminData.confirmPassword) {
             toast.error('Enter new password and confirm password to update');
             return;
         }
@@ -547,16 +516,16 @@ export default function AdminDashboardPage() {
 
             const res = await response.json();
             console.log(res)
-    
+
             if (!response.ok) {
-                if(response.status == 402){
+                if (response.status == 402) {
                     toast.error(res.error || 'Current password is invalid');
                 }
                 toast.error('Failed to update settings!');
                 return;
             }
         } catch (error) {
-            
+
         }
 
         toast.success('Admin settings saved successfully, logging out...');
@@ -1087,6 +1056,9 @@ export default function AdminDashboardPage() {
                                                 <th className="px-4 py-3 font-medium">Name</th>
                                                 <th className="px-4 py-3 font-medium">CA ID</th>
                                                 <th className="px-4 py-3 font-medium">Email</th>
+                                                {/* Updated headers for consultation stats */}
+                                                <th className="px-4 py-3 font-medium">Current Clients</th>
+                                                <th className="px-4 py-3 font-medium">Total Consultations</th>
                                                 <th className="px-4 py-3 font-medium">Status</th>
                                                 <th className="px-4 py-3 font-medium text-right">Actions</th>
                                             </tr>
@@ -1109,12 +1081,33 @@ export default function AdminDashboardPage() {
                                                     </td>
                                                     <td className="px-4 py-3 text-sm">{user.caId}</td>
                                                     <td className="px-4 py-3 text-sm">{user.email}</td>
+                                                    {/* Updated cells for consultation stats */}
+                                                    <td className="px-4 py-3 text-sm">
+                                                        <div className="flex items-center">
+                                                            <span className="font-medium">{user.work || 0}</span>
+                                                            {user.work > 0 && (
+                                                                <Badge className="ml-2 bg-blue-900/40 text-blue-400 hover:bg-blue-900/60">
+                                                                    Active
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm">
+                                                        <div className="flex items-center">
+                                                            <span className="font-medium">{user.workdone || 0}</span>
+                                                            {user.workdone > 0 && (
+                                                                <div className="ml-2 text-xs text-green-400">
+                                                                    Completed
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                     <td className="px-4 py-3">
                                                         <Badge className={`
-                                                            ${user.status === 'active' ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : ''}
-                                                            ${user.status === 'pending' ? 'bg-yellow-900/40 text-yellow-400 hover:bg-yellow-900/60' : ''}
-                                                            ${user.status === 'inactive' ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : ''}
-                                                        `}>
+                                            ${user.status === 'active' ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : ''}
+                                            ${user.status === 'pending' ? 'bg-yellow-900/40 text-yellow-400 hover:bg-yellow-900/60' : ''}
+                                            ${user.status === 'inactive' ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : ''}
+                                        `}>
                                                             {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                                                         </Badge>
                                                     </td>
@@ -1142,7 +1135,8 @@ export default function AdminDashboardPage() {
                                                             <DropdownMenuContent className="bg-[#232323] border-[#333333]">
                                                                 <DropdownMenuItem className="cursor-pointer">View Profile</DropdownMenuItem>
                                                                 <DropdownMenuItem className="cursor-pointer">Edit Details</DropdownMenuItem>
-                                                                <DropdownMenuItem className="cursor-pointer">Send Message</DropdownMenuItem>
+                                                                <DropdownMenuItem className="cursor-pointer">View Clients</DropdownMenuItem>
+                                                                <DropdownMenuItem className="cursor-pointer">Consultation History</DropdownMenuItem>
                                                                 {user.status === 'pending' && (
                                                                     <DropdownMenuItem onClick={() => { caApprove(user._id) }} className="cursor-pointer text-green-400">Approve</DropdownMenuItem>
                                                                 )}
