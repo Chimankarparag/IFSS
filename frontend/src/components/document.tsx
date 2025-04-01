@@ -2124,11 +2124,13 @@ const InputField = ({
 const Loader = () => {
   return (
     <div className="flex items-center justify-center h-16">
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent animate-spin"></div>
+      <div className="relative w-8 h-8">
+        <div className="absolute inset-0 rounded-full border-2 border-slate-800 opacity-20"></div>
+        <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
       </div>
     </div>
   );
 };
+
 
 export default TaxFilingDashboard;
