@@ -171,6 +171,13 @@ int main() {
         
         // Final Tax Calculation
         TaxCalculation taxCalc(grossTotalIncome, empDetails, taxDeductions, salary);
+        const auto& taxSavingData = formData["taxSaving"];
+        taxCalc.TDS = taxSavingData["TDSpaid"].get<double>();
+        taxCalc.advanceTaxJune15 = taxSavingData["advancetaxJune"].get<double>();
+        taxCalc.advanceTaxSeptember15 = taxSavingData["advancetaxSept"].get<double>();
+        taxCalc.advanceTaxDecember15 = taxSavingData["advancetaxDec"].get<double>();
+        taxCalc.advanceTaxMarch15 = taxSavingData["advancetaxMar"].get<double>();
+        taxCalc.ITRFilingMonth = taxSavingData["monthOfItrFiling"].get<int>();
         
 // Prepare Output
 json output = {
