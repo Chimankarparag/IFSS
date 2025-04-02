@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownIcon, ArrowUpIcon, InfoIcon, TrendingUpIcon, ReceiptIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, InfoIcon, TrendingUpIcon, ReceiptIcon, AlertTriangleIcon } from "lucide-react";
 
 const formatCurrency = (amount) => {
   // Handle undefined, null or NaN values
@@ -16,7 +16,7 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const ITRSummaryCard = ({ summaryData }) => {
+const ITRSummaryCard = ({ summaryData, isOldTaxRegime = true }) => {
   // Early return if summaryData is null or undefined
   if (!summaryData) return null;
   
@@ -53,12 +53,23 @@ const ITRSummaryCard = ({ summaryData }) => {
   
   // Format tax saving opportunities text
   let taxSavingOpportunities = "";
+  let hasTaxSavingOpportunities = false;
   if (breakdown["Tax Saving Opportunities"]) {
     const opportunities = breakdown["Tax Saving Opportunities"];
-    taxSavingOpportunities = Object.entries(opportunities)
-      .map(([section, desc]) => `${section}: ${desc}`)
-      .join(". ");
+    // Check if it has the "Message" property which indicates new regime
+    if (opportunities.Message) {
+      taxSavingOpportunities = opportunities.Message;
+    } else {
+      hasTaxSavingOpportunities = Object.keys(opportunities).length > 0;
+      taxSavingOpportunities = Object.entries(opportunities)
+        .map(([section, desc]) => `${section}: ${desc}`)
+        .join(". ");
+    }
   }
+
+  // Check if we're in new tax regime and have the message in deductions
+  const deductionsMessage = breakdown["Total Deductions"]?.["Message"];
+  const isNewRegimeWithNoDeductions = !isOldTaxRegime && deductionsMessage;
   
   return (
     <Card className="w-full bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800 shadow-xl rounded-xl overflow-hidden">
@@ -72,6 +83,16 @@ const ITRSummaryCard = ({ summaryData }) => {
             </CardTitle>
             <CardDescription className="text-gray-400">
               Financial Year {new Date().getFullYear() - 1}-{new Date().getFullYear()}
+              {!isOldTaxRegime && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-200">
+                  New Tax Regime
+                </span>
+              )}
+              {isOldTaxRegime && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-900 text-purple-200">
+                  Old Tax Regime
+                </span>
+              )}
             </CardDescription>
           </div>
           {taxLiability === 0 ? (
@@ -156,43 +177,63 @@ const ITRSummaryCard = ({ summaryData }) => {
         <div className="space-y-3">
           <h3 className="text-sm text-gray-300 flex items-center gap-2">
             <ReceiptIcon size={16} className="text-blue-400" />
-            DEDUCTIONS CLAIMED
+            {isOldTaxRegime ? "DEDUCTIONS CLAIMED" : "DEDUCTIONS"}
           </h3>
-          <div className="p-4 bg-gray-800/30 rounded-lg border border-gray-700/50">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm text-gray-300">Total Deductions</p>
-              <p className="text-lg font-semibold text-green-400">{formatCurrency(totalDeductions)}</p>
+          
+          {isNewRegimeWithNoDeductions ? (
+            <div className="p-4 bg-yellow-900/20 rounded-lg border border-yellow-800/40">
+              <div className="flex items-center gap-3">
+                <AlertTriangleIcon size={20} className="text-yellow-400" />
+                <p className="text-sm text-yellow-300">{deductionsMessage}</p>
+              </div>
+              <p className="text-sm text-gray-400 mt-3">{summaryText}</p>
             </div>
-            
-            {/* Deduction Breakdown */}
-            <div className="space-y-2 mb-3">
-              {Object.entries(breakdown["Total Deductions"] || {}).filter(([key, value]) => 
-                key !== "Total Deductions" && value > 0
-              ).map(([key, value]) => (
-                <div key={key} className="flex justify-between text-xs">
-                  <span className="text-gray-400">{key}</span>
-                  <span className="text-gray-300">{formatCurrency(value)}</span>
-                </div>
-              ))}
+          ) : (
+            <div className="p-4 bg-gray-800/30 rounded-lg border border-gray-700/50">
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-sm text-gray-300">Total Deductions</p>
+                <p className="text-lg font-semibold text-green-400">{formatCurrency(totalDeductions)}</p>
+              </div>
+              
+              {/* Deduction Breakdown */}
+              <div className="space-y-2 mb-3">
+                {Object.entries(breakdown["Total Deductions"] || {}).filter(([key, value]) => 
+                  key !== "Total Deductions" && key !== "Message" && value > 0
+                ).map(([key, value]) => (
+                  <div key={key} className="flex justify-between text-xs">
+                    <span className="text-gray-400">{key}</span>
+                    <span className="text-gray-300">{formatCurrency(value)}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <p className="text-sm text-gray-400 mt-3 pt-3 border-t border-gray-700/50">
+                {summaryText}
+              </p>
             </div>
-            
-            <p className="text-sm text-gray-400 mt-3 pt-3 border-t border-gray-700/50">
-              {summaryText}
-            </p>
-          </div>
+          )}
         </div>
         
         {/* Tax Saving Opportunities */}
-        {taxSavingOpportunities && (
+        {(hasTaxSavingOpportunities || !isOldTaxRegime) && (
           <div className="space-y-3">
             <h3 className="text-sm text-gray-300 flex items-center gap-2">
               <TrendingUpIcon size={16} className="text-purple-400" />
               TAX SAVING OPPORTUNITIES
             </h3>
-            <div className="p-4 bg-indigo-900/20 rounded-lg border border-indigo-800/40">
-              <p className="text-sm text-gray-300">
-                {taxSavingOpportunities}
-              </p>
+            <div className={`p-4 rounded-lg border ${isOldTaxRegime ? 'bg-indigo-900/20 border-indigo-800/40' : 'bg-gray-800/30 border-gray-700/50'}`}>
+              {!isOldTaxRegime ? (
+                <div className="flex items-center gap-3">
+                  <InfoIcon size={20} className="text-gray-400" />
+                  <p className="text-sm text-gray-300">
+                    {taxSavingOpportunities || "No tax saving opportunities available under the new tax regime"}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-300">
+                  {taxSavingOpportunities}
+                </p>
+              )}
             </div>
           </div>
         )}

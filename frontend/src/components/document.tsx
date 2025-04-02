@@ -2064,7 +2064,7 @@ const TaxFilingDashboard = (params: any) => {
       {/* ITR Summary Card Container - Improved Layout */}
       {calculate ? (
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
-        <ITRSummaryCard summaryData={summary} />
+        <ITRSummaryCard summaryData={summary} isOldTaxRegime={formData.income.underOldTaxRegime} />
 
         <div className="flex justify-end mt-4">
           <ConsultCAButton />

@@ -31,6 +31,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
+import ReactMarkdown from 'react-markdown';
 
 export default function CADashboardPage() {
     const router = useRouter();
@@ -421,12 +422,12 @@ export default function CADashboardPage() {
                                             </div>
 
                                             <div className="border-t border-[#333333] pt-4 mt-2 mb-6">
-                                                <div className="prose prose-invert max-w-none text-white/60">
-                                                    {selectedMessage.content.split('\n').map((paragraph, i) => (
-                                                        <p key={i}>{paragraph}</p>
-                                                    ))}
-                                                </div>
-                                            </div>
+    <div className="prose prose-invert max-w-none text-white/60">
+        <ReactMarkdown style={{ whiteSpace: 'pre-wrap' }}>
+            {selectedMessage.content}
+        </ReactMarkdown>
+    </div>
+</div>
 
                                             {selectedMessage.folder === 'inbox' && selectedMessage.from?.panNumber && (
                                                 <div className="border-t border-[#333333] pt-4">

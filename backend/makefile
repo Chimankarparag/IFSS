@@ -1,6 +1,6 @@
 # Compiler
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -I/opt/homebrew/Cellar/nlohmann-json/3.11.3/include/
+CXXFLAGS = -std=c++11 -Wall -I$(SRCDIR) -I$(INCDIR)
 LDFLAGS =
 
 # Directories
