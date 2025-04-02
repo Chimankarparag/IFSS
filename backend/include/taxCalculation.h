@@ -18,6 +18,7 @@ public:
     double calculateTotalTaxBeforeCess() const;
     double calculateCess() const;
     void displayIncomeDetails() const;
+    double calculateSlabTaxable() const;
     double taxCalculationCaller() const;
     double totalTaxesPaid() const;
     double reliefUnderSec89() const;

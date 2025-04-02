@@ -29,6 +29,9 @@ void TaxCalculation::inputIncomeDetails() {
     cout<<"\nEnter the relief amount under section 89: ";
     cin>>relief;
 
+}
+double TaxCalculation::calculateSlabTaxable() const{
+
     taxAtSpecialRates = 0.78 * otherIncome.getUnexplainedIncome() + 
                         0.10 * otherIncome.getRoyaltyIncome() + 
                         0.10 * otherIncome.getCarbonCreditIncome() + 
@@ -38,6 +41,7 @@ void TaxCalculation::inputIncomeDetails() {
                        otherIncome.calculateTotalOtherIncome() - taxDeductions.calculateTotalDeduction();
 
     slabTaxableIncome = max(0.0, slabTaxableIncome);
+    return slabTaxableIncome;
 }
 
 double TaxCalculation::taxCalculationCaller() const {
@@ -261,6 +265,9 @@ double TaxCalculation::interest234B() const {
     if(unpaidAdvanceTax <= 0.1* assessedTax){
         return 0;
     }else{
+        if(ITRFilingMonth<3){
+            return (unpaidAdvanceTax * 0.01 * (ITRFilingMonth + 9));
+        }
         return (unpaidAdvanceTax * 0.01 * (ITRFilingMonth - 3));
     }
 

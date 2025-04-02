@@ -276,6 +276,7 @@ json output = {
         }}
     }},
     {"taxCalculation", {
+        {"slabTaxableIncome",taxCalc.calculateSlabTaxable()},
         {"totalTaxBeforeCess", taxCalc.calculateTotalTaxBeforeCess()},
         {"cess", taxCalc.calculateCess()},
         {"totalTaxesPaid", taxCalc.totalTaxesPaid()},
