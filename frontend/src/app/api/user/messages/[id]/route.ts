@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbconfig/dbConfig";
 import Inbox from "@/models/inboxModel";
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
     try {
         await connect();
         
-        const messageId = params.id;
+        const { searchParams } = new URL(request.url);
+        const messageId = searchParams.get('id');
 
         if (!messageId) {
             return NextResponse.json({ message: "Message ID required" }, { status: 400 });
@@ -32,11 +33,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest) {
     try {
         await connect();
 
-        const messageId = params.id;
+        const { searchParams } = new URL(request.url);
+        const messageId = searchParams.get('id');
+
         if (!messageId) {
             return NextResponse.json({ message: "Message ID required" }, { status: 400 });
         }

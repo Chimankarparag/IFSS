@@ -28,13 +28,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-hot-toast";
 import {
     Tabs,
-    TabsContent,
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
@@ -143,6 +142,7 @@ export default function AdminDashboardPage() {
 
 
         } catch (error) {
+            console.error('Error fetching admin data:', error);
             toast.error('Login First!');
             router.push('/auth/admin-login');
         } finally {

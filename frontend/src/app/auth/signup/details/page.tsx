@@ -49,7 +49,12 @@ const formSchema = z.object({
 export default function SignupPage() {
     const router = useRouter();
 
-    const pan = sessionStorage.getItem('signup_pan');
+    const [pan, setPan] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        const storedPan = sessionStorage.getItem('signup_pan');
+        setPan(storedPan);
+    }, []);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 30);

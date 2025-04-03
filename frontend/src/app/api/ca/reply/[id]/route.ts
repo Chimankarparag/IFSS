@@ -3,11 +3,12 @@ import { connect } from "@/dbconfig/dbConfig";
 import Inbox from "@/models/inboxModel";
 import Message from "@/models/messageModel";
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
     try {
         await connect();
         
-        const messageId = params.id;
+        const { searchParams } = new URL(request.url);
+        const messageId = searchParams.get('id');
 
         if (!messageId) {
             return NextResponse.json({ message: "Message ID required" }, { status: 400 });
