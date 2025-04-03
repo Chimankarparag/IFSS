@@ -41,6 +41,18 @@ jobs:
 
   frontend-build:
     runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_OPENAI_API_KEY: ${{ secrets.NEXT_PUBLIC_OPENAI_API_KEY }}
+      DOMAIN: ${{ secrets.DOMAIN }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      MAILTRAP_PASS: ${{ secrets.MAILTRAP_PASS }}
+      MAILTRAP_USER: ${{ secrets.MAILTRAP_USER }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
+      PORT: ${{ secrets.PORT }}
+      TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+      WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
     
     steps:
     - uses: actions/checkout@v3
