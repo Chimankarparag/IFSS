@@ -1,14 +1,25 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
-
-# Set the working directory in the container
+# Stage 1: Build the C++ binary
+FROM gcc:latest AS builder
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Copy the necessary files for compilation
+COPY . /app
+
+# Run the Makefile to compile the code
+RUN make
+
+# Stage 2: Build the Python application
+FROM python:3.9-slim
+WORKDIR /app
+
+# Copy the compiled binary from the builder stage
+COPY --from=builder /app/build/taxCalculator /app/build/taxCalculator
+
+# Copy the rest of the application code
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-# RUN pip install --no-cache-dir -r src/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
@@ -16,5 +27,6 @@ EXPOSE 5000
 # Define environment variable
 ENV NAME World
 
-# Run app.py when the container launches
-CMD ["python", "src/app.py"]
+# Run main.py when the container launches
+CMD ["python3", "src/app.py"]
+

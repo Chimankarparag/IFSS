@@ -1,10 +1,17 @@
-version: '3'
 services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - "5001:5000"
+    networks:
+      - ifss-network
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"
+    networks:
+      - ifss-network
+
+networks:
+  ifss-network:
+    driver: bridge

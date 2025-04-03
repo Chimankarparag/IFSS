@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
         // Send the data to the C++ server
         const cppResponse = await axios.post(
-            "http://127.0.0.1:5000/api/calculate",
+            "http://127.0.0.1:8000/api/calculate",
             userData
         );
 
