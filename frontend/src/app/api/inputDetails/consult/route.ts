@@ -214,57 +214,109 @@ async function generateMailerForCA(
         }
 
         // Check tax regime
-        const taxRegime = itrDetails.income.underOldTaxRegime ? "Old Tax Regime" : "New Tax Regime";
+        const isOldTaxRegime = itrDetails.income.underOldTaxRegime;
+        const taxRegime = isOldTaxRegime ? "Old Tax Regime" : "New Tax Regime";
 
         // Generate subject line
         const subject = `Request for Professional Review - ITR Filing FY ${financialYearStart}-${financialYearEnd} [Taxable Income: ${formatCurrency(taxableIncome)}]`;
 
-        // Generate email content
-        const content = `
+        // Generate email content with proper indentation that will display correctly
+        let content = `
 Dear CA,
 
 I hope this email finds you well. I'm reaching out to request your professional review of my Income Tax Return (ITR) for the Financial Year ${financialYearStart}-${financialYearEnd} before final submission. I've prepared my tax filing based on my understanding but would greatly value your expert assessment to ensure compliance and optimize my tax position.
 
-**Key Details of My ITR Filing:**
+Key Details of My ITR Filing:
 
-**Tax Regime:** ${taxRegime}
+Tax Regime: ${taxRegime}
 
-**Income Summary:**
+Income Summary:
 - Gross Salary: ${formatCurrency(itrSummary.breakdown["Total Income"]["Gross Salary"])}
 - Income Under Head Salaries: ${formatCurrency(itrSummary.breakdown["Total Income"]["Income Under Head Salaries"])}
 - Income from House Property: ${formatCurrency(itrSummary.breakdown["Total Income"]["Income Under House Property"])}
 - Income from Other Sources: ${formatCurrency(itrSummary.breakdown["Total Income"]["Other Income"])}
-- Gross Total Income: ${formatCurrency(totalIncome)}
+- Gross Total Income: ${formatCurrency(totalIncome)}`;
 
-**Deductions Claimed:**
+        // Only include deductions section if using Old Tax Regime
+        if (isOldTaxRegime) {
+            content += `
+
+Deductions Claimed:
 - Standard Deduction: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Standard Deduction"])}
 - Professional Tax: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Professional Tax"])}
 - Section 80C: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80C"])}
-- Section 80D: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80D"])}
-${itrSummary.breakdown["Total Deductions"]["Section 80CCD1B"] > 0 ? `- Section 80CCD(1B): ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80CCD1B"])}\n` : ''}
-${itrSummary.breakdown["Total Deductions"]["Section 80E"] > 0 ? `- Section 80E: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80E"])}\n` : ''}
-${itrSummary.breakdown["Total Deductions"]["Section 80G"] > 0 ? `- Section 80G: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80G"])}\n` : ''}
-- Total Deductions: ${formatCurrency(totalDeductions)}
+- Section 80D: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80D"])}`;
 
-**Tax Computation:**
+            if (itrSummary.breakdown["Total Deductions"]["Section 80CCD1B"] > 0) {
+                content += `
+- Section 80CCD(1B): ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80CCD1B"])}`;
+            }
+            
+            if (itrSummary.breakdown["Total Deductions"]["Section 80E"] > 0) {
+                content += `
+- Section 80E: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80E"])}`;
+            }
+            
+            if (itrSummary.breakdown["Total Deductions"]["Section 80G"] > 0) {
+                content += `
+- Section 80G: ${formatCurrency(itrSummary.breakdown["Total Deductions"]["Section 80G"])}`;
+            }
+            
+            content += `
+- Total Deductions: ${formatCurrency(totalDeductions)}`;
+        }
+
+        // Continue with tax computation section
+        content += `
+
+Tax Computation:
 - Taxable Income: ${formatCurrency(taxableIncome)}
 - Tax Liability: ${formatCurrency(taxLiability)}
-- Total Tax Paid: ${formatCurrency(taxPaid)}
-${refundAmount > 0 ? `- Refund Due: ${formatCurrency(refundAmount)}` : ''}
-${refundAmount < 0 ? `- Tax Due: ${formatCurrency(Math.abs(refundAmount))}` : ''}
+- Total Tax Paid: ${formatCurrency(taxPaid)}`;
 
-**Areas Requiring Your Expert Review:**
-${needsSpecialAttention.length > 0 ? needsSpecialAttention.map(item => `- ${item}`).join('\n') : '- General verification of all claims and calculations'}
-${hasTaxSavingOpportunities ? '\n**Potential Tax Saving Opportunities Identified:**\n' +
-                Object.entries(taxSavingOpportunities).map(([section, description]) => `- ${section}: ${description}`).join('\n') : ''}
+        if (refundAmount > 0) {
+            content += `
+- Refund Due: ${formatCurrency(refundAmount)}`;
+        }
+        
+        if (refundAmount < 0) {
+            content += `
+- Tax Due: ${formatCurrency(Math.abs(refundAmount))}`;
+        }
 
-**Specific Questions:**
-1. Are there any deductions or exemptions I might have missed?
+        content += `
+
+Areas Requiring Your Expert Review:`;
+
+        if (needsSpecialAttention.length > 0) {
+            needsSpecialAttention.forEach(item => {
+                content += `
+- ${item}`;
+            });
+        } else {
+            content += `
+- General verification of all claims and calculations`;
+        }
+
+        if (hasTaxSavingOpportunities) {
+            content += `
+
+Potential Tax Saving Opportunities Identified:`;
+            Object.entries(taxSavingOpportunities).forEach(([section, description]) => {
+                content += `
+- ${section}: ${description}`;
+            });
+        }
+
+        content += `
+
+Specific Questions:
+1. Are there any ${isOldTaxRegime ? 'additional deductions or exemptions' : 'opportunities'} I might have missed?
 2. Is my selection of tax regime (${taxRegime}) optimal for my financial situation?
 3. Are there any red flags or areas of concern in my filing that might trigger scrutiny?
 4. Can you suggest any legitimate tax planning strategies for the next financial year?
 
-I've attached my detailed income and deduction information for your review. Please let me know if you need any additional documentation or clarification on any aspect of my filing.
+I've attached my detailed income and ${isOldTaxRegime ? 'deduction' : ''} information for your review. Please let me know if you need any additional documentation or clarification on any aspect of my filing.
 
 I would appreciate your review at your earliest convenience, as I'm planning to finalize my ITR submission by ${deadlineDate}.
 
@@ -272,8 +324,7 @@ Thank you for your professional assistance.
 
 Warm regards,
 ${userName}
-${userContact}
-        `;
+${userContact}`;
 
         return {
             subject,
@@ -283,7 +334,19 @@ ${userContact}
         console.error("Error generating CA mailer:", error);
         return {
             subject: "Request for ITR Review - Tax Filing Assistance Needed",
-            content: `Dear CA,\n\nI'm writing to request your professional review of my Income Tax Return. I've prepared my ITR but would appreciate your expert assessment before final submission. Unfortunately, I couldn't generate the detailed summary due to a technical issue, but I would still value your guidance on optimizing my tax position.\n\nPlease let me know what information you need from me to proceed with the review.\n\nThank you for your assistance.\n\nRegards,\n${userName}\n${userContact}`
+            content: `Request for ITR Review - Tax Filing Assistance Needed
+
+Dear CA,
+
+I'm writing to request your professional review of my Income Tax Return. I've prepared my ITR but would appreciate your expert assessment before final submission. Unfortunately, I couldn't generate the detailed summary due to a technical issue, but I would still value your guidance on optimizing my tax position.
+
+Please let me know what information you need from me to proceed with the review.
+
+Thank you for your assistance.
+
+Regards,
+${userName}
+${userContact}`
         };
     }
 }

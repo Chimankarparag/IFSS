@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         console.log("C++ server response:", cppResponse.data);
 
         // Generate ITR Summary using OpenAI GPT
-        const itrSummary = await generateITRSummaryWithOpenAI(cppResponse.data);
+        const itrSummary = await generateITRSummaryWithOpenAI(cppResponse.data, salary.underOldTaxRegime);
 
         // Return the response from the C++ server along with the ITR summary
         return NextResponse.json(
@@ -78,11 +78,15 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// Helper function to generate ITR Summary using OpenAI GPT
-async function generateITRSummaryWithOpenAI(cppData: any) {
+async function generateITRSummaryWithOpenAI(cppData: any, underOldTaxRegime: boolean) {
     try {
+        const regimeSpecificPrompt = underOldTaxRegime 
+            ? "Analyze this tax data under the old tax regime with applicable deductions."
+            : "Analyze this tax data under the new tax regime where standard deductions are NOT applicable. Include a note in the summary that deductions cannot be claimed under the new tax regime.";
+        
         const prompt = `
-            Analyze this tax data and provide a detailed ITR summary:
+            ${regimeSpecificPrompt}
+            Tax data:
             ${JSON.stringify(cppData)}
             
             You must return a JSON object with EXACTLY this structure:
@@ -97,6 +101,7 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                         "Gross Total Income": [number]
                     },
                     "Total Deductions": {
+                        ${underOldTaxRegime ? `
                         "Standard Deduction": [number],
                         "Professional Tax": [number],
                         "Section 80C": [number],
@@ -108,16 +113,26 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                         "Section 80G": [number],
                         "Section 80TTA": [number],
                         "Total Deductions": [number]
+                        ` : `
+                        "Message": "Deductions cannot be claimed under the new tax regime",
+                        "Total Deductions": 0
+                        `}
                     },
                     "Taxable Income": [number],
                     "Tax Liability": [number],
                     "Tax Paid": [number],
                     "Refund Amount": [number],
+                    ${underOldTaxRegime ? `
                     "Tax Saving Opportunities": {
                         "Section 80C": "Description of opportunities",
                         "Section 80D": "Description of opportunities",
                         "Section 80E": "Description of opportunities"
                     }
+                    ` : `
+                    "Tax Saving Opportunities": {
+                        "Message": "No tax saving opportunities available under the new tax regime"
+                    }
+                    `}
                 }
             }
             
@@ -125,7 +140,7 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
             1. All monetary values MUST be numbers only (no currency symbols, commas, or strings)
             2. Use 0 for any values that are not applicable or missing
             3. The "summary" field should be a clear, concise paragraph
-            4. Only include sections in "Tax Saving Opportunities" that are relevant
+            4. ${underOldTaxRegime ? "Only include sections in 'Tax Saving Opportunities' that are relevant" : "Make sure to mention that deductions cannot be claimed under the new tax regime in the summary"}
             5. Return ONLY valid JSON without markdown formatting or additional text
         `;
 
@@ -150,7 +165,7 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                     "Other Income": Number(parsedSummary.breakdown?.["Total Income"]?.["Other Income"]) || 0,
                     "Gross Total Income": Number(parsedSummary.breakdown?.["Total Income"]?.["Gross Total Income"]) || 0
                 },
-                "Total Deductions": {
+                "Total Deductions": underOldTaxRegime ? {
                     "Standard Deduction": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Standard Deduction"]) || 0,
                     "Professional Tax": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Professional Tax"]) || 0,
                     "Section 80C": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Section 80C"]) || 0,
@@ -162,12 +177,17 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                     "Section 80G": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Section 80G"]) || 0,
                     "Section 80TTA": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Section 80TTA"]) || 0,
                     "Total Deductions": Number(parsedSummary.breakdown?.["Total Deductions"]?.["Total Deductions"]) || 0
+                } : {
+                    "Message": "Deductions cannot be claimed under the new tax regime",
+                    "Total Deductions": 0
                 },
                 "Taxable Income": Number(parsedSummary.breakdown?.["Taxable Income"]) || 0,
                 "Tax Liability": Number(parsedSummary.breakdown?.["Tax Liability"]) || 0,
                 "Tax Paid": Number(parsedSummary.breakdown?.["Tax Paid"]) || 0,
                 "Refund Amount": Number(parsedSummary.breakdown?.["Refund Amount"]) || 0,
-                "Tax Saving Opportunities": parsedSummary.breakdown?.["Tax Saving Opportunities"] || {}
+                "Tax Saving Opportunities": underOldTaxRegime ? 
+                    (parsedSummary.breakdown?.["Tax Saving Opportunities"] || {}) : 
+                    { "Message": "No tax saving opportunities available under the new tax regime" }
             }
         };
         
@@ -185,7 +205,7 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                     "Other Income": 0,
                     "Gross Total Income": 0
                 },
-                "Total Deductions": {
+                "Total Deductions": underOldTaxRegime ? {
                     "Standard Deduction": 0,
                     "Professional Tax": 0,
                     "Section 80C": 0,
@@ -197,12 +217,17 @@ async function generateITRSummaryWithOpenAI(cppData: any) {
                     "Section 80G": 0,
                     "Section 80TTA": 0,
                     "Total Deductions": 0
+                } : {
+                    "Message": "Deductions cannot be claimed under the new tax regime",
+                    "Total Deductions": 0
                 },
                 "Taxable Income": 0,
                 "Tax Liability": 0,
                 "Tax Paid": 0,
                 "Refund Amount": 0,
-                "Tax Saving Opportunities": {}
+                "Tax Saving Opportunities": underOldTaxRegime ? 
+                    {} : 
+                    { "Message": "No tax saving opportunities available under the new tax regime" }
             } 
         };
     }

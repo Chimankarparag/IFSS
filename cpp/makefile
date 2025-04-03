@@ -1,6 +1,6 @@
 # Compiler
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -I$(SRCDIR) -I$(INCDIR)
+CXXFLAGS = -std=c++11 -Wall
 LDFLAGS =
 
 # Directories

@@ -18,7 +18,6 @@ public:
     double calculateTotalTaxBeforeCess() const;
     double calculateCess() const;
     void displayIncomeDetails() const;
-    double calculateSlabTaxable() const;
     double taxCalculationCaller() const;
     double totalTaxesPaid() const;
     double reliefUnderSec89() const;
@@ -33,7 +32,7 @@ public:
     double amountPayable() const;
     double refundableAmount() const;
 
-
+private:
     const GrossTotalIncome& grossTotalIncome;
     const EmployeeDetails& details;
     const TaxDeductions& taxDeductions;

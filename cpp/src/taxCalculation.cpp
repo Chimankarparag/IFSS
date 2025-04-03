@@ -29,9 +29,6 @@ void TaxCalculation::inputIncomeDetails() {
     cout<<"\nEnter the relief amount under section 89: ";
     cin>>relief;
 
-}
-double TaxCalculation::calculateSlabTaxable() const{
-
     taxAtSpecialRates = 0.78 * otherIncome.getUnexplainedIncome() + 
                         0.10 * otherIncome.getRoyaltyIncome() + 
                         0.10 * otherIncome.getCarbonCreditIncome() + 
@@ -41,7 +38,6 @@ double TaxCalculation::calculateSlabTaxable() const{
                        otherIncome.calculateTotalOtherIncome() - taxDeductions.calculateTotalDeduction();
 
     slabTaxableIncome = max(0.0, slabTaxableIncome);
-    return slabTaxableIncome;
 }
 
 double TaxCalculation::taxCalculationCaller() const {
@@ -265,9 +261,7 @@ double TaxCalculation::interest234B() const {
     if(unpaidAdvanceTax <= 0.1* assessedTax){
         return 0;
     }else{
-        if(ITRFilingMonth<3){
-            return (unpaidAdvanceTax * 0.01 * (ITRFilingMonth + 9));
-        }
+
         return (unpaidAdvanceTax * 0.01 * (ITRFilingMonth - 3));
     }
 
@@ -310,6 +304,7 @@ double TaxCalculation::fee234F() const {
     if (grosstotalincome <= 500000) {
         return 1000; // Maximum penalty for income ≤ ₹5L
     } else {
+        if(ITRFilingMonth < 3) return 0;
         return (monthsDelayed <= 5) ? 5000 : 10000; // ₹5K if before Dec, else ₹10K
     }
 }
