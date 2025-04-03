@@ -50,15 +50,11 @@ export async function POST(request: NextRequest) {
             taxSaving: taxSaving || {},
         };
 
-        console.log("Current userData:", userData);
-
         // Send the data to the C++ server
         const cppResponse = await axios.post(
-            "http://127.0.0.1:8000/api/calculate",
+            "http://backend:5000/api/calculate",
             userData
         );
-
-        console.log("C++ server response:", cppResponse.data);
 
         // Generate ITR Summary using OpenAI GPT
         const itrSummary = await generateITRSummaryWithOpenAI(cppResponse.data, salary.underOldTaxRegime);

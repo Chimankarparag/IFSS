@@ -2,16 +2,24 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5001:5000"
+      - "5001:5000"  # Maps container's port 5000 to host's port 5001
     networks:
       - ifss-network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=/app/src/app.py
+    command: flask run --host=0.0.0.0 --port=5000
+
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Ensures Next.js or React app is correctly exposed
     networks:
       - ifss-network
+    depends_on:
+      - backend  # Ensure backend starts first if needed
 
 networks:
   ifss-network:
     driver: bridge
+
