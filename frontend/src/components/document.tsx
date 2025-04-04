@@ -12,8 +12,6 @@ import { Separator } from "@/components/ui/separator"
 import { number } from 'zod';
 import toast from 'react-hot-toast';
 import ITRSummaryCard from './ITRSummaryCard';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 const TaxFilingDashboard = (params: any) => {
 
@@ -165,15 +163,17 @@ const TaxFilingDashboard = (params: any) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const downloadITRSummaryCard = () => {
-    const input = document.getElementById('itrs-summary-card');
-    if (input) {
-      html2canvas(input).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
-        pdf.save('ITRSummaryCard.pdf');
-      });
+    const element = document.getElementById('itrs-summary-card');
+    if (!element) {
+      console.error("Element with id 'itrs-summary-card' not found.");
+      return;
     }
+    const printContents = element.innerHTML;
+    const originalContents = document.body.innerHTML;
+    
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
   };
 
 
@@ -813,8 +813,9 @@ const TaxFilingDashboard = (params: any) => {
       <button
         onClick={messageCA}
         disabled={isSubmitting}
-        className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 ${isSubmitting ? 'cursor-not-allowed' : ''
-          }`}
+        className={`inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-zinc-900 text-zinc-100 border border-zinc-800 hover:bg-zinc-800 h-10 px-4 py-2 ${
+          isSubmitting ? 'cursor-not-allowed' : ''
+        }`}
       >
         {isSubmitting ? (
           <>
@@ -838,9 +839,9 @@ const TaxFilingDashboard = (params: any) => {
           "Consult with a CA"
         )}
       </button>
-
     );
   };
+  
   // Define the tax category cards
   type FormDataCategory = keyof typeof formData;
 
@@ -2077,7 +2078,7 @@ const TaxFilingDashboard = (params: any) => {
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn" id="itrs-summary-card">
           <ITRSummaryCard summaryData={summary} isOldTaxRegime={formData.income.underOldTaxRegime} />
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 space-x-4">
             <ConsultCAButton />
             <Button
               onClick={downloadITRSummaryCard}
