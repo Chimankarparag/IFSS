@@ -31,12 +31,13 @@ jobs:
     - name: Build C++ code
       run: |
         cd backend
-        make
+        make 
     
     - name: Run backend tests
       run: |
-        cd backend/test
-        python -m unittest discover
+        cd backend
+        make test
+        make run-test
       continue-on-error: true
 
   frontend-build:

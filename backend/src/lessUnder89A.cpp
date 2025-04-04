@@ -1,6 +1,7 @@
 #include "lessUnder89A.h"
 #include "foreignRetirement_InGrossIncome.h"
 
+
 using namespace std;
 
 // Constructor initializes values
@@ -16,7 +17,10 @@ void LessUnder89A::inputWithdrawal() {
 // Function to calculate the difference
 double LessUnder89A::calculateLess() const {
     double amountFrom89ACountry = foreignRetirement->getAmountFrom89ACountry();
-    return amountFrom89ACountry - withdrawalAmount;
+    if((amountFrom89ACountry - withdrawalAmount)<0){return 0;
+    }else{
+        return amountFrom89ACountry -withdrawalAmount;
+    }
     
 }
 
