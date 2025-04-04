@@ -14,7 +14,8 @@ import {
     X,
     Upload,
     FileEdit,
-    BarChart3
+    BarChart3,
+    Download
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
@@ -358,6 +359,29 @@ export default function DashboardPage() {
                                 </CardContent>
                             </Card>
                         </div>
+
+                        <Card className="bg-[#1A1A1A] border-[#333333] mb-8">
+                            <CardHeader>
+                                <CardTitle>Download ITR Form</CardTitle>
+                                <CardDescription className="text-slate-400">Download ITR-1 SAHAJ form</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    <Button
+                                        className="w-full flex items-center gap-2 justify-center bg-orange-600 hover:bg-orange-700"
+                                        onClick={() => {
+                                            const link = document.createElement('a');
+                                            link.href = '/ITR1_Notified Form AY 2023-24.pdf'; // Path to the PDF file in the public folder
+                                            link.download = 'ITR1.pdf'; // Name of the downloaded file
+                                            link.click();
+                                        }}
+                                    >
+                                        <Download size={18} />
+                                        <span>ITR-1 Sahaj</span>
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {/* Quick actions */}
                         <Card className="bg-[#1A1A1A] border-[#333333]">

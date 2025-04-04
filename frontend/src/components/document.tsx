@@ -6,15 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { number } from 'zod';
-import Deductions from '@/models/inputDetails/deductionsModel';
 import toast from 'react-hot-toast';
 import ITRSummaryCard from './ITRSummaryCard';
-import { Progress } from "@radix-ui/react-progress";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const TaxFilingDashboard = (params: any) => {
 
@@ -164,6 +163,18 @@ const TaxFilingDashboard = (params: any) => {
     otherSources: number,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const downloadITRSummaryCard = () => {
+    const input = document.getElementById('itrs-summary-card');
+    if (input) {
+      html2canvas(input).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+        pdf.save('ITRSummaryCard.pdf');
+      });
+    }
+  };
 
 
   const setSalary = async () => {
@@ -2063,13 +2074,19 @@ const TaxFilingDashboard = (params: any) => {
 
       {/* ITR Summary Card Container - Improved Layout */}
       {calculate ? (
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn">
-        <ITRSummaryCard summaryData={summary} isOldTaxRegime={formData.income.underOldTaxRegime} />
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 mb-12 animate-fadeIn" id="itrs-summary-card">
+          <ITRSummaryCard summaryData={summary} isOldTaxRegime={formData.income.underOldTaxRegime} />
 
-        <div className="flex justify-end mt-4">
-          <ConsultCAButton />
+          <div className="flex justify-end mt-4">
+            <ConsultCAButton />
+            <Button
+              onClick={downloadITRSummaryCard}
+              className="bg-zinc-900 hover:bg-zinc-800 text-zinc-100 border border-zinc-800 px-6 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 focus:ring-2 focus:ring-zinc-600 focus:ring-offset-2 focus:ring-offset-zinc-950"
+            >
+              Download PDF
+            </Button>
+          </div>
         </div>
-      </div>
       ) : null}
 
     </div>
