@@ -989,7 +989,7 @@ TEST_CASE("DeductionUnderSection16 Initialization from JSON", "[DeductionUnderSe
     
     
 }
-/*
+
 
 // --- IncomeUnderHeadSalaries Class Tests ---
 TEST_CASE("IncomeUnderHeadSalaries Initialization from JSON", "[IncomeUnderHeadSalaries]") {
@@ -1061,9 +1061,96 @@ TEST_CASE("IncomeUnderHeadSalaries Initialization from JSON", "[IncomeUnderHeadS
 
     IncomeUnderHeadSalaries incomeSalaries(&netIncome, &deductions);
 
-    // Verify IncomeUnderHeadSalaries fields (if any)
-    // Add REQUIRE statements as needed
+    SECTION("calculateIncomeUnderHeadSalaries Function") {
+        // Test with initial values
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(2246000 - deductions.calculateTotalDeductions())); // Adjust the expected value as needed
+    
+        // Test with modified salary values
+        salary.basicSalary = 1000000;
+        salary.pension = 0;
+        salary.dearnessAllowance = 0;
+        salary.bonusCommissions = 0;
+        salary.advanceSalary = 0;
+        salary.arrears = 0;
+        salary.leaveEncashment = 0;
+        salary.gratuity = 0;
+        salary.hra = 0;
+        salary.entertainmentAllowance = 0;
+        salary.professionalTax = 0;
+        salary.otherComponents = 0;
+        perq.rentFreeAccommodation = 0;
+        perq.concessionInRent = 0;
+        perq.companyCar = 0;
+        perq.freeUtilities = 0;
+        perq.medicalFacilities = 0;
+        perq.interestFreeLoans = 0;
+        perq.stockOptions = 0;
+        perq.educationForChildren = 0;
+        profits.terminationCompensation = 0;
+        profits.retirementCompensation = 0;
+        profits.goldenHandshake = 0;
+        profits.keymanInsurancePayout = 0;
+        profits.preEmploymentPayments = 0;
+        profits.postResignationPayments = 0;
+        foreignRetirement.AmountFrom89ACountry = 0;
+        foreignRetirement.AmountFromNon89ACountry = 0;
+    
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(950000 - deductions.calculateTotalDeductions())); // Adjust the expected value as needed
+    
+        // Test with modified salary values
+        salary.basicSalary = 1000000;
+        salary.pension = 50000;
+        salary.dearnessAllowance = 25000;
+        salary.bonusCommissions = 60000;
+    
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1085000 - deductions.calculateTotalDeductions())); // Adjust the expected value as needed
+    
+        // Test with modified perquisites values
+        perq.rentFreeAccommodation = 10000;
+        perq.concessionInRent = 5000;
+        perq.companyCar = 20000;
+        perq.freeUtilities = 6000;
+        perq.medicalFacilities = 7500;
+        perq.interestFreeLoans = 10000;
+        perq.stockOptions = 25000;
+        perq.educationForChildren = 3000;
+        REQUIRE(perq.calculatePerquisites17_2() == Catch::Approx(69000));
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1154000 - deductions.calculateTotalDeductions())); // Adjust the expected value as needed
+    
+        // Test with modified profits values
+        profits.terminationCompensation = 10000;
+        profits.retirementCompensation = 5000;
+        profits.goldenHandshake = 2000;
+        profits.keymanInsurancePayout = 3000;
+        profits.preEmploymentPayments = 1500;
+        profits.postResignationPayments = 2500;
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1128000)); // Adjust the expected value as needed
+    
+        // Test with modified foreign retirement values
+        foreignRetirement.AmountFrom89ACountry = 10000;
+        foreignRetirement.AmountFromNon89ACountry = 5000;
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1133000)); // Adjust the expected value as needed
+    
+        // Test with old tax regime
+        empDetails.oldTaxRegime = true;
+        exemptions.rentPaid = 240000;
+        exemptions.metroCity = true;
+        exemptions.ltaAmount = 30000;
+        exemptions.childrenEduAllowance = 4800;
+        exemptions.hostelAllowance = 7200;
+        exemptions.transportAllowance = 19200;
+        exemptions.totalPension = 0;
+        exemptions.commutedPension = 0;
+        exemptions.vrsCompensation = 0;
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1193000 - exemptions.calculateTotalExemptions() - lessUnder89A.calculateLess())); // Adjust the expected value as needed
+    
+        // Test with new tax regime
+        empDetails.oldTaxRegime = false;
+        REQUIRE(incomeSalaries.calculateIncomeUnderHeadSalaries() == Catch::Approx(1168000)); // Adjust the expected value as needed
+    }
+    
 }
+/*
 
 // --- IncomeUnderHouseProperty Class Tests ---
 TEST_CASE("IncomeUnderHouseProperty Initialization from JSON", "[IncomeUnderHouseProperty]") {
@@ -1082,6 +1169,75 @@ TEST_CASE("IncomeUnderHouseProperty Initialization from JSON", "[IncomeUnderHous
     REQUIRE(houseProperty.municipalTaxes == 15000);
     REQUIRE(houseProperty.unrealisedRent == 0);
     REQUIRE(houseProperty.letOutInterestOnBorowedCapital == 0);
+
+    SECTION("IncomeUnderHouseProperty Function Tests") {
+        // Test calculateIncomeFromSelfOccupiedProperty function
+        SECTION("calculateIncomeFromSelfOccupiedProperty Function") {
+            // Test with self-occupied interest less than 200000
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 150000;
+            REQUIRE(houseProperty.calculateIncomeFromSelfOccupiedProperty() == Catch::Approx(-150000.0));
+    
+            // Test with self-occupied interest equal to 200000
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 200000;
+            REQUIRE(houseProperty.calculateIncomeFromSelfOccupiedProperty() == Catch::Approx(-200000.0));
+    
+            // Test with self-occupied interest greater than 200000
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 250000;
+            REQUIRE(houseProperty.calculateIncomeFromSelfOccupiedProperty() == Catch::Approx(-200000.0));
+        }
+    
+        // Test calculateIncomeFromLetOutProperty function
+        SECTION("calculateIncomeFromLetOutProperty Function") {
+            // Test with net annual value less than or equal to 0
+            houseProperty.rentalIncome = 100000;
+            houseProperty.municipalTaxes = 100000;
+            houseProperty.unrealisedRent = 0;
+            houseProperty.letOutInterestOnBorowedCapital = 50000;
+            REQUIRE(houseProperty.calculateIncomeFromLetOutProperty() == Catch::Approx(0.0));
+    
+            // Test with net annual value greater than 0
+            houseProperty.rentalIncome = 200000;
+            houseProperty.municipalTaxes = 50000;
+            houseProperty.unrealisedRent = 0;
+            houseProperty.letOutInterestOnBorowedCapital = 50000;
+            REQUIRE(houseProperty.calculateIncomeFromLetOutProperty() == Catch::Approx(55000.0));
+    
+            // Test with net annual value greater than 0 and unrealised rent
+            houseProperty.rentalIncome = 200000;
+            houseProperty.municipalTaxes = 50000;
+            houseProperty.unrealisedRent = 30000;
+            houseProperty.letOutInterestOnBorowedCapital = 50000;
+            REQUIRE(houseProperty.calculateIncomeFromLetOutProperty() == Catch::Approx(20000.0));
+        }
+    
+        // Test calculateIncomeUnderHouseProperty function
+        SECTION("calculateIncomeUnderHouseProperty Function") {
+            // Test with income from self-occupied property and let-out property
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 150000;
+            houseProperty.rentalIncome = 200000;
+            houseProperty.municipalTaxes = 50000;
+            houseProperty.unrealisedRent = 30000;
+            houseProperty.letOutInterestOnBorowedCapital = 50000;
+            REQUIRE(houseProperty.calculateIncomeUnderHouseProperty() == Catch::Approx(-100000.0));
+    
+            // Test with income from self-occupied property only
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 150000;
+            houseProperty.rentalIncome = 0;
+            houseProperty.municipalTaxes = 0;
+            houseProperty.unrealisedRent = 0;
+            houseProperty.letOutInterestOnBorowedCapital = 0;
+            REQUIRE(houseProperty.calculateIncomeUnderHouseProperty() == Catch::Approx(-150000.0));
+    
+            // Test with income from let-out property only
+            houseProperty.selfOccupiedInterestOnBorowedCapital = 0;
+            houseProperty.rentalIncome = 200000;
+            houseProperty.municipalTaxes = 50000;
+            houseProperty.unrealisedRent = 30000;
+            houseProperty.letOutInterestOnBorowedCapital = 50000;
+            REQUIRE(houseProperty.calculateIncomeUnderHouseProperty() == Catch::Approx(20000.0));
+        }
+    }
+    
 }
 
 // --- OtherIncome Class Tests ---
